@@ -17,6 +17,7 @@ import csv
 import logging
 from lxml import etree
 from . import shared
+from . import kakadu
 
 __version__ = "0.1.0"
 
@@ -79,10 +80,12 @@ def getFilesFromTree(rootDir, extensions):
 def processFiles(listFiles):
     """Process all files in list"""
 
-    for myFile in listFiles:
-        logging.info(("file: {}").format(myFile))
-        myFile = os.path.abspath(myFile)
-        print(myFile)
+    for fileIn in listFiles:
+        logging.info(("file: {}").format(fileIn))
+        fileIn = os.path.abspath(fileIn)
+        fileOut = "test"
+        dictTest = kakadu.compress(fileIn, fileOut)
+        print(dictTest)
 
 
 def main():

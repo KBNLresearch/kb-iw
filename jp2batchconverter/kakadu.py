@@ -27,11 +27,13 @@ cmdlineMaster="$kduPath/kdu_compress -i "$file"
 def compress(imageIn, jp2Out):
     """Convert input image to JP2
     """
-
     # TODO read from user-defined config file!
-    kdu_compress = "/home/johan/kakadu/kdu_compress"
-    # TODO also include check on LD_LIBRARY_PATH (Linux, possibly MacOS as well)
-    # Even better - set it if it isn't defined
+    kdu_dir = "/home/johan/kakadu/"
+    kdu_compress = os.path.join(os.path.normpath(kdu_dir), "kdu_compress")
+
+    # Set LD_LIBRARY_PATH to kdu_dir (this only sets the variable for thus process,
+    # not system wide)
+    os.environ['LD_LIBRARY_PATH'] = kdu_dir
 
     ## Bitrates for RGB images, following KB specs
     bitratesMaster="-,4.8,2.4,1.2,0.6,0.3,0.15,0.075,0.0375,0.01875,0.009375"
@@ -54,8 +56,6 @@ def compress(imageIn, jp2Out):
 
     io_args = [kdu_compress, "-i", imageIn, "-o", jp2Out]
     args = io_args + compress_args
-
-    #print(args)
 
     # Command line as string (used for logging purposes only)
     cmdStr = " ".join(args)

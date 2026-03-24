@@ -77,15 +77,17 @@ def getFilesFromTree(rootDir, extensions):
     return filesList
 
 
-def processFiles(listFiles):
+def processFiles(listFiles, dirIn, dirOut):
     """Process all files in list"""
 
     for fileIn in listFiles:
         logging.info(("file: {}").format(fileIn))
         fileIn = os.path.abspath(fileIn)
-        fileOut = "test"
+        fileRel = os.path.relpath(fileIn, start=dirIn)
+        fileOut = os.path.abspath(os.path.join(dirOut, fileRel))
+        print(fileIn)
+        print(fileOut)
         dictTest = kakadu.compress(fileIn, fileOut)
-        print(dictTest)
 
 
 def main():
@@ -150,12 +152,12 @@ def main():
     # List of all files
     listFiles = getFilesFromTree(dirIn, extensions)
 
-    # start clock for statistics
+    # Start clock for statistics
     start = time.time()
     print("jp2batchconverter started: " + time.asctime())
 
     # Process all files
-    processFiles(listFiles)
+    processFiles(listFiles, dirIn, dirOut)
 
     # Timing output
     end = time.time()

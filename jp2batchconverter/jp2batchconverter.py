@@ -17,6 +17,7 @@ import csv
 import logging
 from lxml import etree
 from . import shared
+from . import config
 from . import kakadu
 
 __version__ = "0.1.0"
@@ -143,6 +144,9 @@ def main():
     if not os.path.isdir(schemasDir):
         shutil.copytree(schemasDirPackage, schemasDir)
     """
+
+    # TODO read from user-defined config file!
+    config.kdu_dir = "/home/johan/kakadu/"
 
     # Get input from command line
     args = parseCommandLine()

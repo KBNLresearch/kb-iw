@@ -4,6 +4,8 @@
 import os
 import subprocess as sub
 import logging
+from . import shared
+from . import config
 
 
 """
@@ -27,9 +29,17 @@ cmdlineMaster="$kduPath/kdu_compress -i "$file"
 def compress(imageIn, jp2Out):
     """Convert input image to JP2
     """
-    # TODO read from user-defined config file!
-    kdu_dir = "/home/johan/kakadu/"
+    kdu_dir = config.kdu_dir
     kdu_compress = os.path.join(os.path.normpath(kdu_dir), "kdu_compress")
+
+    if not os.path.isfile(kdu_compress):
+        msg = ("kdu_compress binary is missing")
+        logging.error(msg)
+        shared.errorExit(msg)
+
+    # TODO: add check that kdu_compress is executable
+    # TODO: perhaps wrap Kakadu wrapper into a class so we don't repeat these checks for every call (see also Bodleian code)
+
 
     # Set LD_LIBRARY_PATH to kdu_dir (this only sets the variable for thus process,
     # not system wide)

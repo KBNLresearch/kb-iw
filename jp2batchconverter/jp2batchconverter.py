@@ -172,10 +172,14 @@ def main():
     # Read config file
     configDict = getConfiguration(configFile)
 
-
     # TODO validate contents of config file for completeness
     config.kdu_dir = os.path.expanduser(configDict["kduDir"])
-    print(config.kdu_dir)
+
+    ## TEST
+    for profile in configDict["compressionProfiles"]:
+        print(profile["name"])
+
+    ## TEST
 
     # Get input from command line
     args = parseCommandLine()

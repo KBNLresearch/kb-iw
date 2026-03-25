@@ -155,7 +155,8 @@ def main():
 
     # Check if files / directories exist
     shared.checkDirExists(dirIn)
-    shared.checkDirExists(dirOut)
+    if not os.path.isdir(dirOut):
+        os.makedirs(dirOut)
 
     # Check if outDir is writable
     if not os.access(dirOut, os.W_OK):

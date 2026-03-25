@@ -4,7 +4,7 @@
 
 Jp2batchconverter converts image files in digitisation batches to JP2 (JPEG 2000 Part 1) format. It clones the structure of the input directory, and then replicates it in the output directory. The JP2 images are then subjected to the following quality checks:
 
-1. Pixel comparison between each pair of source and destination image (using [Pillow](https://pillow.readthedocs.io/)).
+1. Pixel comparison between each pair of source and destination images (using [Pillow](https://pillow.readthedocs.io/)).
 2. Check of extracted technical properties (using [jpylyzer](https://jpylyzer.openpreservation.org/)) against a user-defined [Schematron](http://en.wikipedia.org/wiki/Schematron) profile.
 
 The software also generates checksums of all converted images.  It uses [Pillow](https://pillow.readthedocs.io/) to extract the relevant technical properties.

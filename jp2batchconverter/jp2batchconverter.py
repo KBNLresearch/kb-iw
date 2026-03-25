@@ -108,11 +108,11 @@ def processFiles(listFiles, dirIn, dirOut):
 def main():
     """Main function"""
 
+    # TODO read from config file
     extensions = ["tiff", "tif"]
 
     # Path to configuration dir (from https://stackoverflow.com/a/53222876/1209004
     # and https://stackoverflow.com/a/13184486/1209004).
-    # TODO on Windows this should return the AppData/Local folder, does this work??
     configpath = os.path.join(
     os.environ.get('LOCALAPPDATA') or
     os.environ.get('XDG_CONFIG_HOME') or
@@ -122,7 +122,7 @@ def main():
      # Create config directory if it doesn't exist already
     if not os.path.isdir(configpath):
         os.mkdir(configpath)
-   
+
     # Locate package directory
     packageDir = os.path.dirname(os.path.abspath(__file__))
 
@@ -168,7 +168,9 @@ def main():
         shared.errorExit(msg)
 
     # Set up logging
-    logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)],
+    logFile = os.path.join(dirOut, 'jp2batchconverter.log')
+    logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout),
+                                  logging.FileHandler(logFile, 'a', 'utf-8')],
                         level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')
 

@@ -2,6 +2,7 @@
 """Kakadu wrapper module"""
 
 import os
+import sys
 import subprocess as sub
 import logging
 from . import shared
@@ -24,9 +25,13 @@ class Kakadu:
             shared.errorExit(msg)
 
         # Set LD_LIBRARY_PATH to kdu_dir (this only sets the variable for this
-        # process,not system wide)
-        ## TODO skip for Windows system (how does this work on MacOS?)
-        os.environ['LD_LIBRARY_PATH'] = self.kdu_dir
+        # Kakadu class instance ,not system wide)
+        if sys.platform == 'linux':
+            os.environ['LD_LIBRARY_PATH'] = self.kdu_dir
+        elif sys.platform == 'darwin':
+            # TODO - this is the MacOS equivalent of LD_LIBRARY_PATH, but not
+            # sure if thisc works, or if Kakadu even uses this!
+            os.environ['DYLD_LIBRARY_PATH'] = self.kdu_dir
 
         self.imageIn = ""
         self.jp2Out = ""

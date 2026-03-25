@@ -14,12 +14,14 @@ class Kakadu:
         """initialise Kakadu class instance"""
         self.kdu_dir = config.kdu_dir
         self.kdu_compress = os.path.join(os.path.normpath(self.kdu_dir), "kdu_compress")
-
+        # Test if kdu_compress exists
         if not os.path.isfile(self.kdu_compress):
-            msg = ("kdu_compress binary is missing")
-            logging.error(msg)
+            msg = ("kdu_compress binary ({}) is missing".format(self.kdu_compress))
             shared.errorExit(msg)
-        # TODO: add check that kdu_compress is executable
+        # Test if it is executable
+        if not os.access(self.kdu_compress, os.X_OK):
+            msg = ("kdu_compress binary ({}) is not executable".format(self.kdu_compress))
+            shared.errorExit(msg)
 
         # Set LD_LIBRARY_PATH to kdu_dir (this only sets the variable for this
         # process,not system wide)

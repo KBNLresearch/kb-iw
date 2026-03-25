@@ -45,6 +45,8 @@ class Kakadu:
         # TODO read this from config file
         # TODO define as compression ratios, then calculate corresponding bitrates
         #      as a function of the number of colour components in the input image
+        # TODO note that for lossles case, compression ratio of highest quality layer
+        #       is defined as "0", so this needs to be translated to "-" in kakadu terms
 
         bitrates = "-,4.8,2.4,1.2,0.6,0.3,0.15,0.075,0.0375,0.01875,0.009375"
 

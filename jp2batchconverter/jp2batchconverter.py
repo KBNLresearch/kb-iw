@@ -138,31 +138,21 @@ def main():
     os.path.join(os.environ['HOME'], '.config'),
     "jp2batchconverter")
 
-     # Create config directory if it doesn't exist already
-    if not os.path.isdir(configPath):
-        os.mkdir(configPath)
-
     # Locate package directory
     packageDir = os.path.dirname(os.path.abspath(__file__))
 
-    """
-    TODO - replace code below with any configuration stuff that is specific to the JP2 batch converter
-    # Profile and schema locations in installed package and config folder
-    profilesDirPackage = os.path.join(packageDir, "profiles")
-    schemasDirPackage = os.path.join(packageDir, "schemas")
-    profilesDir = os.path.join(configPath, "profiles")
-    schemasDir = os.path.join(configPath, "schemas")
+    # Config locations in installed package and system config folder
+    configDirPackage = os.path.join(packageDir, "conf")
 
-    # Check if package profiles and schemas dirs exist
-    shared.checkDirExists(profilesDirPackage)
-    shared.checkDirExists(schemasDirPackage)
+    print(configPath)
+    print(configDirPackage)
 
-    # Copy profiles and schemas to respective dirs in config dir
-    if not os.path.isdir(profilesDir):
-        shutil.copytree(profilesDirPackage, profilesDir)
-    if not os.path.isdir(schemasDir):
-        shutil.copytree(schemasDirPackage, schemasDir)
-    """
+    # Check if package conf dir exists
+    shared.checkDirExists(configDirPackage)
+
+    # Copy config file from package to system config dir
+    if not os.path.isdir(configPath):
+        shutil.copytree(configDirPackage, configPath, dirs_exist_ok = True)
 
     configFile = os.path.join(configPath, "config.json")
     if not os.path.isfile(configFile):

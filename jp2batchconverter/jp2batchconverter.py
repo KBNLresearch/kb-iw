@@ -19,8 +19,6 @@ import json
 import logging
 from lxml import etree
 from . import shared
-from . import config
-from .kakadu import Kakadu
 from .grok import Grok
 
 __version__ = "0.1.0"
@@ -96,12 +94,13 @@ def getFilesFromTree(rootDir, extensions):
     return filesList
 
 
-def processFiles(listFiles, dirIn, dirOut):
+def processFiles(listFiles, dirIn, dirOut, configDict):
     """Process all files in list"""
 
-    # Start Kakadu class instance
-    #kakadu = Kakadu()
+    # Start Grok class instance
     grok = Grok()
+    grok.configDict = configDict
+    grok.configure()
 
     for fileIn in listFiles:
         logging.info(("file: {}").format(fileIn))
@@ -120,10 +119,7 @@ def processFiles(listFiles, dirIn, dirOut):
 
         fileOut = os.path.abspath(os.path.join(filePathOut, fileNameOut))
 
-        # Pass I/O to Kakadu instance and run the conversion
-        #kakadu.imageIn = fileIn
-        #kakadu.jp2Out = fileOut
-        #kakadu.compress()
+        # Pass I/O to Grok instance and run the conversion
         grok.imageIn = fileIn
         grok.jp2Out = fileOut
         grok.compress()
@@ -149,9 +145,6 @@ def main():
     # Config locations in installed package and system config folder
     configDirPackage = os.path.join(packageDir, "conf")
 
-    print(configPath)
-    print(configDirPackage)
-
     # Check if package conf dir exists
     shared.checkDirExists(configDirPackage)
 
@@ -168,13 +161,10 @@ def main():
     configDict = getConfiguration(configFile)
 
     # TODO validate contents of config file for completeness
-    config.kdu_dir = os.path.expanduser(configDict["kduDir"])
-    config.grok_dir = os.path.expanduser(configDict["grokDir"])
 
     ## TEST
     for profile in configDict["compressionProfiles"]:
         print(profile["name"])
-
     ## TEST
 
     # Get input from command line
@@ -211,7 +201,7 @@ def main():
     logging.info("jp2batchconverter started: {}".format(time.asctime()))
 
     # Process all files
-    processFiles(listFiles, dirIn, dirOut)
+    processFiles(listFiles, dirIn, dirOut, configDict)
 
     # Timing output
     end = time.time()

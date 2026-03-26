@@ -6,16 +6,32 @@ import sys
 import subprocess as sub
 import logging
 from . import shared
-from . import config
 
 class Grok:
     """Grok class"""
 
     def __init__(self):
         """initialise Grok class instance"""
-        self.grok_bin_dir = os.path.join(os.path.normpath(config.grok_dir), "bin")
-        self.grok_lib_dir = os.path.join(os.path.normpath(config.grok_dir), "lib")
-        self.grk_compress = os.path.join(os.path.normpath(self.grok_bin_dir), "grk_compress")
+        self.grok_dir = ""
+        self.grok_bin_dir = ""
+        self.grok_lib_dir = ""
+        self.grk_compress = ""
+        self.configDict = {}
+        self.imageIn = ""
+        self.jp2Out = ""
+
+
+    def configure(self):
+        """Configure this Grok instance"""
+        self.grok_dir = os.path.expanduser(self.configDict["grokDir"])
+        self.grok_bin_dir = os.path.join(os.path.normpath(self.grok_dir), "bin")
+        self.grok_lib_dir = os.path.join(os.path.normpath(self.grok_dir), "lib")
+        if sys.platform == 'win32':
+            # Windows
+            self.grk_compress = os.path.join(os.path.normpath(self.grok_bin_dir), "grk_compress.exe")
+        else:
+            # Linux, MacOS
+            self.grk_compress = os.path.join(os.path.normpath(self.grok_bin_dir), "grk_compress")
         # Test if grk_compress exists
         if not os.path.isfile(self.grk_compress):
             msg = "grk_compress binary ({}) is missing".format(self.grk_compress)
@@ -28,8 +44,7 @@ class Grok:
         if not os.path.isdir(self.grok_lib_dir):
             msg = "grok lib directory ({}) is missing".format(self.grok_lib_dir)
             shared.errorExit(msg)
-        # Set LD_LIBRARY_PATH (this only sets the variable for this
-        # Grok class instance ,not system wide)
+        # Set LD_LIBRARY_PATH for this class instance
         if sys.platform == 'linux':
             os.environ['LD_LIBRARY_PATH'] = self.grok_lib_dir
         elif sys.platform == 'darwin':
@@ -37,9 +52,6 @@ class Grok:
             # sure if this works.
             os.environ['DYLD_LIBRARY_PATH'] = self.grok_lib_dir
 
-        # File I/O
-        self.imageIn = ""
-        self.jp2Out = ""
 
     def compress(self):
         """Convert input image to JP2

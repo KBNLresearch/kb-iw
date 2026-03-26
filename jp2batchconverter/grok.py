@@ -20,6 +20,8 @@ class Grok:
         self.compressionProfile = ""
         self.imageIn = ""
         self.jp2Out = ""
+        self.out = ""
+        self.errors = ""
 
 
     def configure(self):
@@ -89,13 +91,11 @@ class Grok:
 
         if status != 0:
             logging.error("abnormal grk_compress exit status")
-            print(out)
-            print(errors)
+            logging.error("grk_compress stdout: {}".format(out))
+            logging.error("grk_compress stderr: {}".format(errors))
 
-        # All results to dictionary
-        dictOut = {}
-        dictOut["cmdStr"] = cmdStr
-        dictOut["status"] = status
-        dictOut["stdout"] = out
-        dictOut["stderr"] = err
+        self.out = out
+        self.errors = errors
+
+
 

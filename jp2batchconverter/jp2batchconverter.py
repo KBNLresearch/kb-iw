@@ -18,6 +18,9 @@ import csv
 import json
 import logging
 from lxml import etree
+from PIL import Image
+from PIL import ImageChops
+from PIL import ImageStat
 from . import shared
 from .grok import Grok
 
@@ -101,7 +104,8 @@ def processFiles(listFiles, dirIn, dirOut, configDict):
     grok = Grok()
     grok.configDict = configDict
     grok.configure()
-    grok.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
+    #grok.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
+    grok.compressionProfile = "KB_ACCESS_LOSSY_01/01/2015"
 
     for fileIn in listFiles:
         logging.info(("file: {}").format(fileIn))
@@ -125,12 +129,17 @@ def processFiles(listFiles, dirIn, dirOut, configDict):
         grok.jp2Out = fileOut
         grok.compress()
 
+        # Pixel check
+        imgSource = Image.open(fileIn)
+        imgDest = Image.open(fileOut)
+        imgDiff = ImageChops.difference(imgSource, imgDest)
+        stat = ImageStat.Stat(imgDiff)
+        imgDiffSum = stat.sum
+        logging.info("Sum of absolute pixel differences: {}".format(imgDiffSum))
+
 
 def main():
     """Main function"""
-
-    # TODO read from config file
-    extensions = ["tiff", "tif"]
 
     # Path to configuration dir (from https://stackoverflow.com/a/53222876/1209004
     # and https://stackoverflow.com/a/13184486/1209004).
@@ -162,6 +171,10 @@ def main():
     configDict = getConfiguration(configFile)
 
     # TODO validate contents of config file for completeness
+
+    # List of file extensions to process (case insensitive)
+    # TODO perhaps allow user to override this using command-line option?
+    extensions = configDict["inExtensions"]
 
     # Get input from command line
     args = parseCommandLine()

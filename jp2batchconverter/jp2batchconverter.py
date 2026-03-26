@@ -21,6 +21,7 @@ from lxml import etree
 from . import shared
 from . import config
 from .kakadu import Kakadu
+from .grok import Grok
 
 __version__ = "0.1.0"
 
@@ -99,7 +100,8 @@ def processFiles(listFiles, dirIn, dirOut):
     """Process all files in list"""
 
     # Start Kakadu class instance
-    kakadu = Kakadu()
+    #kakadu = Kakadu()
+    grok = Grok()
 
     for fileIn in listFiles:
         logging.info(("file: {}").format(fileIn))
@@ -119,9 +121,12 @@ def processFiles(listFiles, dirIn, dirOut):
         fileOut = os.path.abspath(os.path.join(filePathOut, fileNameOut))
 
         # Pass I/O to Kakadu instance and run the conversion
-        kakadu.imageIn = fileIn
-        kakadu.jp2Out = fileOut
-        kakadu.compress()
+        #kakadu.imageIn = fileIn
+        #kakadu.jp2Out = fileOut
+        #kakadu.compress()
+        grok.imageIn = fileIn
+        grok.jp2Out = fileOut
+        grok.compress()
 
 
 def main():
@@ -164,6 +169,7 @@ def main():
 
     # TODO validate contents of config file for completeness
     config.kdu_dir = os.path.expanduser(configDict["kduDir"])
+    config.grok_dir = os.path.expanduser(configDict["grokDir"])
 
     ## TEST
     for profile in configDict["compressionProfiles"]:

@@ -48,18 +48,16 @@ class Grok:
         # TODO include logfile option?
         # TODO add XMP box
 
-        compress_args = ["-n 6",
-                        "-p RPCL",
-                        "-t 1024,1024",
-                        "-c [256,256],[256,256],[128,128],[128,128],[128,128],[128,128]",
-                        "Cblk={64,64}",
-                        "-r 2560,1280,640,320,160,80,40,20,10,5,1",
+        compress_args = ["-n", "6",
+                        "-p", "RPCL",
+                        "-t", "1024,1024",
+                        "-b", "64,64",
+                        "-c", "[256,256],[256,256],[128,128],[128,128],[128,128],[128,128]",
+                        "-r", "2560,1280,640,320,160,80,40,20,10,5,1",
                         "-S",
                         "-E",
-                        "-M 32",
-                        "-C KB_MASTER_LOSSLESS_01/01/2015"]
-
-        compress_args = []
+                        "-M", "32",
+                        "-C", "KB_MASTER_LOSSLESS_01/01/2015"]
 
         io_args = [self.grk_compress, "-i", self.imageIn, "-o", self.jp2Out]
         args = io_args + compress_args

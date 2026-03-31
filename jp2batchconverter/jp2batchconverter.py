@@ -21,6 +21,7 @@ from lxml import etree
 from . import shared
 from .grok import Grok
 from . import pixelcheck
+from . import propertiescheck
 
 __version__ = "0.1.0"
 
@@ -95,7 +96,7 @@ def getFilesFromTree(rootDir, extensions):
     return filesList
 
 
-def processFiles(listFiles, dirIn, dirOut, configDict):
+def processFiles(listFiles, dirIn, dirOut, configDict, schema):
     """Process all files in list"""
 
     # Start Grok class instance
@@ -143,6 +144,9 @@ def processFiles(listFiles, dirIn, dirOut, configDict):
         logging.info("Sum of absolute pixel differences: {}".format(sumPixelDifferences))
 
         # TODO analyze JP2 with Jpylyzer and evaluate output against Schematron policy
+        statusLine, outString = propertiescheck.propertiesCheck(fileOut, schema)
+        logging.info(statusLine)
+        logging.info(outString)
 
         # TODO calculate checksum and write to file (in batch root dir?)
 
@@ -220,8 +224,13 @@ def main():
     start = time.time()
     logging.info("jp2batchconverter started: {}".format(time.asctime()))
 
+    ## TEST
+    # TODO think about where/how to set this (in config file?)
+    schema = os.path.join(configPath, "schemas", "kbMaster_2014.sch")
+    ## TEST
+
     # Process all input files
-    processFiles(listFiles, dirIn, dirOut, configDict)
+    processFiles(listFiles, dirIn, dirOut, configDict, schema)
 
     # Timing output
     end = time.time()

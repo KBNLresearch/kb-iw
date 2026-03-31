@@ -169,7 +169,7 @@ def main():
     # Check if package conf dir exists
     shared.checkDirExists(configDirPackage)
 
-    # Copy config file from package to system config dir
+    # Copy contents of package config dir to system config dir
     if not os.path.isdir(configPath):
         shutil.copytree(configDirPackage, configPath, dirs_exist_ok = True)
 

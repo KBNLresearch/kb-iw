@@ -53,6 +53,7 @@ def parseCommandLine():
 
 def readConfigFile(configFile):
     """read configuration file and return contents as dictionary"""
+    # TODO move to new config function
 
     configDict = {}
 

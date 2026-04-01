@@ -59,7 +59,7 @@ def propertiesCheck(JP2, schema):
     """Do properties check on one JP2"""
 
     # Initialise status (pass/fail)
-    status = "pass"
+    status = "fail"
 
     # Initialise empty text string for error log output
     ptOutString = ""
@@ -70,7 +70,6 @@ def propertiesCheck(JP2, schema):
         resultAsXML = ET.tostring(resultJpylyzer, 'UTF-8', 'xml')
 
     except Exception:
-        status = "fail"
         logging.error("error while running jpylyzer")
 
     try:
@@ -89,15 +88,15 @@ def propertiesCheck(JP2, schema):
         report = schematron.validation_report
 
     except Exception:
-        status = "fail"
         logging.error("error while running Schematron")
 
     # Parse output of Schematron validation and extract
     # info on failed tests
     try:
         schematronTestsFailed = extractSchematron(report)
+        if len(schematronTestsFailed) == 0:
+            status = "pass"
     except Exception:
-        status = "fail"
         logging.error("error while parsing Schematron report")
 
     # Parse jpylyzer XML output and extract info on failed tests
@@ -105,7 +104,6 @@ def propertiesCheck(JP2, schema):
     try:
         jpylyzerTestsFailed = extractJpylyzer(resultJpylyzer)
     except Exception:
-        status = "fail"
         logging.error("error while parsing jpylyzer output")
 
     return status, schematronTestsFailed, jpylyzerTestsFailed

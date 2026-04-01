@@ -98,6 +98,7 @@ def getFilesFromTree(rootDir, extensions):
 
 def processFiles(listFiles, dirIn, dirOut, configDict, schema):
     """Process all files in list"""
+    # TODO rewrite as a class
 
     # Start Grok class instance
     grok = Grok()
@@ -180,8 +181,6 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
 
             schTestsFailedStr = '|'.join(schTestsFailedOut)
             logging.error("image does not conform to Schematron rules")
-        #print(schTestsFailed)
-        #print(jpTestsFailed)
 
         # Calculate checksum (SHA-256)
         checksum = shared.generate_file_sha256(fileOut)
@@ -205,7 +204,7 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
 
 def main():
     """Main function"""
-
+    # TODO: split CLI stuff and configuration stuff into separate functions
     # Path to configuration dir (from https://stackoverflow.com/a/53222876/1209004
     # and https://stackoverflow.com/a/13184486/1209004).
     configPath = os.path.join(

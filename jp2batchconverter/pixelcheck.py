@@ -9,7 +9,6 @@ from PIL import ImageStat
 
 def sumDifferences(image1, image2):
     """ Returns sum of absolute differences between pixel values in pair of images"""
-    success = True
 
     try:
         im1 = Image.open(image1)
@@ -27,6 +26,5 @@ def sumDifferences(image1, image2):
             sumDiffAll += value
     except Exception:
         sumDiffAll = None
-        success = False
 
-    return sumDiffAll, success
+    return sumDiffAll

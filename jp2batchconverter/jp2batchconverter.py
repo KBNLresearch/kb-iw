@@ -106,7 +106,19 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
     grok.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
     #grok.compressionProfile = "KB_ACCESS_LOSSY_01/01/2015"
 
+    # Summary file
+    summaryFile = os.path.join(dirOut, "summary.csv")
+    summaryHeadings = ["fileIn", "fileOut", "successGrok", "successPixelCheck", "successJpylyzerCheck"]
+
+    with open(summaryFile, 'w', newline='', encoding='utf-8') as fSum:
+        # TODO read delimiter from configuration file
+        writer = csv.writer(fSum, delimiter=";")
+        writer.writerow(summaryHeadings)
+
     for fileIn in listFiles:
+        successGrok = False
+        successPixelCheck = False
+        successJpylyzerCheck = False
         fileNameIn = os.path.basename(fileIn)
         filePathIn = os.path.dirname(fileIn)
         filePathInRel = os.path.relpath(filePathIn, start=dirIn)
@@ -132,26 +144,46 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
         grok.compress()
 
         logging.info("grk_compress exit status: {}".format(grok.status))
-        if grok.status != 0:
+        # TODO report Grok exit status to output file
+        if grok.status == 0:
+            successGrok = True
+            logging.info("grok.compress completed sucessfully")
+        elif grok.status != 0:
             logging.error("abnormal grk_compress exit status")
         if not grok.success:
             logging.error("grok.compress function resulted in an exception")
 
         # Check on pixel values
-        sumPixelDifferences, sumSuccess = pixelcheck.sumDifferences(fileIn, fileOut)
-        if not sumSuccess:
-             logging.error("pixel difference check failed")
+        # TODO report result to output file
+        sumPixelDifferences = pixelcheck.sumDifferences(fileIn, fileOut)
+        if sumPixelDifferences == None:
+             logging.error("pixel difference check failed with exception")
+        if sumPixelDifferences == 0:
+            logging.info("pixel difference check passed sucessfully")
+            successPixelCheck = True
+        else:
+            logging.error("pixel difference check failed")
         logging.info("Sum of absolute pixel differences: {}".format(sumPixelDifferences))
 
-        # TODO analyze JP2 with Jpylyzer and evaluate output against Schematron policy
+        # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
+        # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
+        # TODO report results (status, schTestsFailed, jpTestsFailed) to output file(s)
         status, schTestsFailed, jpTestsFailed = propertiescheck.propertiesCheck(fileOut, schema)
-        logging.info("schematron validation status: {}".format(status))
-        print(schTestsFailed)
-        print(jpTestsFailed)
+        if status == "pass":
+            successJpylyzerCheck = True
+            logging.info("jpylyzer check passed sucessfully")
+        else:
+            logging.error("jpylyzer check failed")
+        #print(schTestsFailed)
+        #print(jpTestsFailed)
 
         # TODO calculate checksum and write to file (in batch root dir?)
 
         # TODO write outcome of QA checks to summary file (CSV)
+        with open(summaryFile, 'a', newline='', encoding='utf-8') as fSum:
+            writer = csv.writer(fSum, delimiter=";")
+            row = [fileIn, fileOut, successGrok, successPixelCheck, successJpylyzerCheck]
+            writer.writerow(row)
 
 
 def main():

@@ -1,17 +1,12 @@
 #! /usr/bin/env python3
 
-"""PDF Quality Assessment for Digitisation batches
-
-Johan van der Knijff
-
-Copyright 2024, KB/National Library of the Netherlands
-
+"""
 Module with shared functions
-
 """
 
 import sys
 import os
+import hashlib
 
 def errorExit(msg):
     """Write error to stderr and exit"""
@@ -32,3 +27,20 @@ def checkDirExists(pathIn):
     if not os.path.isdir(pathIn):
         msg = "directory {} does not exist".format(pathIn)
         errorExit(msg)
+
+
+def generate_file_sha256(fileIn):
+    """Generate sha256 hash of file"""
+
+    # fileIn is read in chunks to ensure it will work with (very) large files as well
+    # Adapted from: http://stackoverflow.com/a/1131255/1209004
+
+    blocksize = 2**20
+    m = hashlib.sha256()
+    with open(fileIn, "rb") as f:
+        while True:
+            buf = f.read(blocksize)
+            if not buf:
+                break
+            m.update(buf)
+    return m.hexdigest()

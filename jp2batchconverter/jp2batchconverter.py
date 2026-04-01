@@ -58,7 +58,7 @@ def readConfigFile(configFile):
 
     # Read config file to dictionary
     try:
-        with io.open(configFile, 'r', encoding='utf-8') as f:
+        with open(configFile, 'r', encoding='utf-8') as f:
             configDict = json.load(f)
     except:
         raise
@@ -115,6 +115,9 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
         writer = csv.writer(fSum, delimiter=";")
         writer.writerow(summaryHeadings)
 
+    # Checksum file
+    checksumFile = os.path.join(dirOut, "checksums.sha256")
+
     for fileIn in listFiles:
         successGrok = False
         successPixelCheck = False
@@ -165,7 +168,6 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
 
         # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
         # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
-        # TODO report results (status, schTestsFailed, jpTestsFailed) to output file(s)
         status, schTestsFailed, jpTestsFailed = propertiescheck.propertiesCheck(fileOut, schema)
         if status == "pass":
             successJpylyzerCheck = True
@@ -181,7 +183,18 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
         #print(schTestsFailed)
         #print(jpTestsFailed)
 
-        # TODO calculate checksum and write to file (in batch root dir?)
+        # Calculate checksum (SHA-256)
+        checksum = shared.generate_file_sha256(fileOut)
+
+        # File reference, relative to output directory
+        fileOutRel = os.path.relpath(fileOut, start=dirOut)
+
+        # Construct checksum line, following https://superuser.com/a/1566139/681049
+        checksumLine = "{}  {}\n".format(checksum, fileOutRel)
+
+        # Write checksum line to file
+        with open(checksumFile, 'a', newline='', encoding='utf-8') as fC:
+            fC.write(checksumLine)
 
         # Write outcomes of QA checks to summary file
         with open(summaryFile, 'a', newline='', encoding='utf-8') as fSum:

@@ -68,10 +68,6 @@ def propertiesCheck(JP2, schema):
     try:
         resultJpylyzer = jpylyzer.checkOneFile(JP2)
         resultAsXML = ET.tostring(resultJpylyzer, 'UTF-8', 'xml')
-        ## TEST
-        with open('jpylyzer.xml', 'wb') as fj:
-            fj.write(resultAsXML)
-        ## TEST
 
     except Exception:
         status = "fail"
@@ -88,16 +84,9 @@ def propertiesCheck(JP2, schema):
         # directly doesn't work
         resJpylyzerLXML = etree.fromstring(resultAsXML)
 
-        ## TEST
-        #print(resJpylyzerLXML)
-        ## TEST
-
         # Validate jpylyzer output against schema
         schemaValidationResult = schematron.validate(resJpylyzerLXML)
         report = schematron.validation_report
-        ## TEST
-        #print(report)
-        ## TEST
 
     except Exception:
         status = "fail"
@@ -107,9 +96,6 @@ def propertiesCheck(JP2, schema):
     # info on failed tests
     try:
         schematronTestsFailed = extractSchematron(report)
-        ## TEST
-        print(schematronTestsFailed )
-        ## TEST
     except Exception:
         status = "fail"
         logging.error("error while parsing Schematron report")
@@ -118,16 +104,8 @@ def propertiesCheck(JP2, schema):
     # in case image is not valid JP2
     try:
         jpylyzerTestsFailed = extractJpylyzer(resultJpylyzer)
-        ## TEST
-        print(jpylyzerTestsFailed)
-        ## TEST
     except Exception:
         status = "fail"
         logging.error("error while parsing jpylyzer output")
 
     return status, schematronTestsFailed, jpylyzerTestsFailed
-
-
-
-
-

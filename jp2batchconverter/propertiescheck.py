@@ -11,47 +11,37 @@ from lxml import etree
 
 
 def extractSchematron(report):
-    """Parse output of Schematron validation and extract interesting bits"""
+    """Parse output of Schematron validation and extract failed tests"""
 
-    outString=""
+    testsFailed = []
 
     for elem in report.iter():
         if elem.tag == "{http://purl.oclc.org/dsdl/svrl}failed-assert":
 
-            config.status = "fail"
-
-            # Extract test definition
+            # Extract test definition and text description
             test = elem.get('test')
-            outString += 'Test "' + test + '" failed ('
 
-            # Extract text description from text element
             for subelem in elem.iter():
                 if subelem.tag == "{http://purl.oclc.org/dsdl/svrl}text":
                     description = (subelem.text)
-                    outString += description + ")" + "\n"
-    return outString
+            testsFailed.append([test, description])
+
+    return testsFailed
 
 
 def extractJpylyzer(resultJpylyzer):
-    """Parse output of Jpylyzer and extract interesting bits"""
+    """Parse output of Jpylyzer and extract failed validation tests"""
 
-    outString=""
+    testsFailed = []
     validationOutcome = resultJpylyzer.find("isValid").text
 
     if validationOutcome == "False":
 
         # Locate test elements
-        # testsElt = resultJpylyzer.find("tests")
-
-        # For some strange reason above statement returns 'None' under
-        # Python 3! Workaround: find it by iterating over resultJpylyzer
 
         for element in resultJpylyzer.iter():
             if element.tag == "tests":
                 testsElt = element
-
-        outString += "*** Jpylyzer JP2 validation errors:" \
-            + "\n"
 
         # Iterate over tests element and report names of all
         # tags thatcorrespond to tests that failed
@@ -60,9 +50,9 @@ def extractJpylyzer(resultJpylyzer):
 
         for j in tests:
             if j.text == "False":
-                outString += "Test " + j.tag + \
-                    " failed" + "\n"
-    return outString
+                testsFailed.append(j.tag)
+
+    return testsFailed
 
 
 def propertiesCheck(JP2, schema):
@@ -78,32 +68,48 @@ def propertiesCheck(JP2, schema):
     try:
         resultJpylyzer = jpylyzer.checkOneFile(JP2)
         resultAsXML = ET.tostring(resultJpylyzer, 'UTF-8', 'xml')
+        ## TEST
+        with open('jpylyzer.xml', 'wb') as fj:
+            fj.write(resultAsXML)
+        ## TEST
+
     except Exception:
         status = "fail"
         logging.error("error while running jpylyzer")
 
     try:
         # Start Schematron magic ...
-        schematron = isoschematron.Schematron(schema,
+
+        schema_doc = etree.parse(schema)
+        schematron = isoschematron.Schematron(schema_doc,
                                               store_report=True)
 
         # Reparse jpylyzer XML with lxml since using ET object
         # directly doesn't work
         resJpylyzerLXML = etree.fromstring(resultAsXML)
 
+        ## TEST
+        #print(resJpylyzerLXML)
+        ## TEST
+
         # Validate jpylyzer output against schema
         schemaValidationResult = schematron.validate(resJpylyzerLXML)
         report = schematron.validation_report
+        ## TEST
+        #print(report)
+        ## TEST
 
     except Exception:
-        raise
         status = "fail"
         logging.error("error while running Schematron")
 
     # Parse output of Schematron validation and extract
-    # interesting bits
+    # info on failed tests
     try:
-        schOutString = extractSchematron(report)
+        schematronTestsFailed = extractSchematron(report)
+        ## TEST
+        print(schematronTestsFailed )
+        ## TEST
     except Exception:
         status = "fail"
         logging.error("error while parsing Schematron report")
@@ -111,15 +117,15 @@ def propertiesCheck(JP2, schema):
     # Parse jpylyzer XML output and extract info on failed tests
     # in case image is not valid JP2
     try:
-        jpOutString = extractJpylyzer(resultJpylyzer)
-        ptOutString += jpOutString
+        jpylyzerTestsFailed = extractJpylyzer(resultJpylyzer)
+        ## TEST
+        print(jpylyzerTestsFailed)
+        ## TEST
     except Exception:
         status = "fail"
         logging.error("error while parsing jpylyzer output")
 
-    statusLine = JP2 + "," + status + "\n"
-
-    return statusLine, ptOutString
+    return status, schematronTestsFailed, jpylyzerTestsFailed
 
 
 

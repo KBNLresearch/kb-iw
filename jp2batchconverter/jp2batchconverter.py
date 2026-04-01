@@ -144,9 +144,10 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
         logging.info("Sum of absolute pixel differences: {}".format(sumPixelDifferences))
 
         # TODO analyze JP2 with Jpylyzer and evaluate output against Schematron policy
-        statusLine, outString = propertiescheck.propertiesCheck(fileOut, schema)
-        logging.info(statusLine)
-        logging.info(outString)
+        status, schTestsFailed, jpTestsFailed = propertiescheck.propertiesCheck(fileOut, schema)
+        logging.info("schematron validation status: {}".format(status))
+        print(schTestsFailed)
+        print(jpTestsFailed)
 
         # TODO calculate checksum and write to file (in batch root dir?)
 
@@ -226,7 +227,7 @@ def main():
 
     ## TEST
     # TODO think about where/how to set this (in config file?)
-    schema = os.path.join(configPath, "schemas", "kbMaster_2014.sch")
+    schema = os.path.join(configPath, "schemas", "kbMaster_2015.sch")
     ## TEST
 
     # Process all input files

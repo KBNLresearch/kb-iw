@@ -119,6 +119,12 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
     # Checksum file
     checksumFile = os.path.join(dirOut, "checksums.sha256")
 
+    # Remove any previous summary / checksum file instances
+    if os.path.isfile(summaryFile):
+        os.remove(summaryFile)
+    if os.path.isfile(checksumFile):
+        os.remove(checksumFile)
+
     for fileIn in listFiles:
         successGrok = False
         successPixelCheck = False

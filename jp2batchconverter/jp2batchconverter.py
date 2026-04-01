@@ -108,7 +108,7 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
 
     # Summary file
     summaryFile = os.path.join(dirOut, "summary.csv")
-    summaryHeadings = ["fileIn", "fileOut", "successGrok", "successPixelCheck", "successJpylyzerCheck"]
+    summaryHeadings = ["fileIn", "fileOut", "successGrok", "successPixelCheck", "successJpylyzerCheck", "failedJpylyzerChecks"]
 
     with open(summaryFile, 'w', newline='', encoding='utf-8') as fSum:
         # TODO read delimiter from configuration file
@@ -144,25 +144,23 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
         grok.compress()
 
         logging.info("grk_compress exit status: {}".format(grok.status))
-        # TODO report Grok exit status to output file
         if grok.status == 0:
             successGrok = True
-            logging.info("grok.compress completed sucessfully")
+            logging.info("grok.compress completed successfully")
         elif grok.status != 0:
             logging.error("abnormal grk_compress exit status")
         if not grok.success:
             logging.error("grok.compress function resulted in an exception")
 
         # Check on pixel values
-        # TODO report result to output file
         sumPixelDifferences = pixelcheck.sumDifferences(fileIn, fileOut)
         if sumPixelDifferences == None:
              logging.error("pixel difference check failed with exception")
         if sumPixelDifferences == 0:
-            logging.info("pixel difference check passed sucessfully")
+            logging.info("pixel values of input and output images are identical")
             successPixelCheck = True
         else:
-            logging.error("pixel difference check failed")
+            logging.error("pixel values of input and output images are not identical")
         logging.info("Sum of absolute pixel differences: {}".format(sumPixelDifferences))
 
         # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
@@ -171,18 +169,24 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
         status, schTestsFailed, jpTestsFailed = propertiescheck.propertiesCheck(fileOut, schema)
         if status == "pass":
             successJpylyzerCheck = True
-            logging.info("jpylyzer check passed sucessfully")
+            logging.info("image conforms to Schematron rules")
         else:
-            logging.error("jpylyzer check failed")
+            # Add failed tests to pipe-delimited string that is included in summary file
+            schTestsFailedOut = []
+            for schtest in schTestsFailed:
+                schTestsFailedOut.append(schtest[0])
+
+            schTestsFailedStr = '|'.join(schTestsFailedOut)
+            logging.error("image does not conform to Schematron rules")
         #print(schTestsFailed)
         #print(jpTestsFailed)
 
         # TODO calculate checksum and write to file (in batch root dir?)
 
-        # TODO write outcome of QA checks to summary file (CSV)
+        # Write outcomes of QA checks to summary file
         with open(summaryFile, 'a', newline='', encoding='utf-8') as fSum:
             writer = csv.writer(fSum, delimiter=";")
-            row = [fileIn, fileOut, successGrok, successPixelCheck, successJpylyzerCheck]
+            row = [fileIn, fileOut, successGrok, successPixelCheck, successJpylyzerCheck, schTestsFailedStr]
             writer.writerow(row)
 
 

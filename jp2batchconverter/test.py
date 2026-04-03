@@ -77,7 +77,6 @@ def main():
             fj.write(resultAsXML)
         ## TEST
 
-        #print(resultAsXML)
     except Exception:
         status = "fail"
         logging.error("error while running jpylyzer")
@@ -109,14 +108,13 @@ def main():
         logging.error("error while running Schematron")
 
     # Parse output of Schematron validation and extract
-    # interesting bits
+    # info on failed tests
     try:
         schematronTestsFailed = extractSchematron(report)
         ## TEST
         print(schematronTestsFailed )
         ## TEST
     except Exception:
-        raise
         status = "fail"
         logging.error("error while parsing Schematron report")
 

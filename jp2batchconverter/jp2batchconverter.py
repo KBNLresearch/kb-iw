@@ -164,15 +164,16 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
             logging.error("grok.compress function resulted in an exception")
 
         # Check on pixel values
-        sumPixelDifferences = pixelcheck.sumDifferences(fileIn, fileOut)
-        if sumPixelDifferences == None:
+        ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
+
+        if ssDiff == None:
              logging.error("pixel difference check failed with exception")
-        if sumPixelDifferences == 0:
+        if ssDiff == 0:
             logging.info("pixel values of input and output images are identical")
             successPixelCheck = True
         else:
             logging.error("pixel values of input and output images are not identical")
-        logging.info("Sum of absolute pixel differences: {}".format(sumPixelDifferences))
+        logging.info("Sum of squared pixel differences: {}".format(ssDiff))
 
         # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
         # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)

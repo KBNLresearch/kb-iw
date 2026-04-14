@@ -3,28 +3,32 @@
 """Compare pixel values from pair of images
 """
 
-from PIL import Image
-from PIL import ImageChops
-from PIL import ImageStat
+import pyvips
 
-def sumDifferences(image1, image2):
-    """ Returns sum of absolute differences between pixel values in pair of images"""
+def sumSqDiff(image1, image2):
+    """ Returns sum of squared difference between two images"""
 
     try:
-        im1 = Image.open(image1)
-        im2 = Image.open(image2)
-        imDiff = ImageChops.difference(im1, im2)
-        im1.close
-        im2.close
-        stat = ImageStat.Stat(imDiff)
-        imDiff.close
-        # This returns a list with separate values for each channel
-        sumDiff = stat.sum
-        # Sum all values so we have one number for all channels
-        sumDiffAll = 0
-        for value in sumDiff:
-            sumDiffAll += value
+        im1 = pyvips.Image.new_from_file(image1)
+        im2 = pyvips.Image.new_from_file(image2)
+        # Compute difference image
+        diff = im1.subtract(im2)
+        # Compute stats from differences image and convert to nested list
+        stats = diff.stats().tolist()
+        # First child list contains aggregated statistics for all bands,
+        # subsequent child lists contain statistics for individual bands.
+        # Documented here:
+        #
+        # https://www.libvips.org/API/8.17/method.Image.stats.html
+        #
+        # Statistics for each list, in order:
+        # minimum, maximum, sum, sum of squares, mean, standard deviation,
+        # x coordinate of minimum, y coordinate of minimum,
+        # xcoordinate of maximum, y coordinate of maximum.
+        #
+        # Return sum of squared differences (aggregated for all bands)
+        ssDiff = stats[0][3]
     except Exception:
-        sumDiffAll = None
+        ssDiff = None
 
-    return sumDiffAll
+    return ssDiff

@@ -13,7 +13,11 @@ The software also generates checksums of all converted images.
 
 - Python (tested with version 3.12)
 - [Grok JPEG 2000 codec](https://github.com/GrokImageCompression/grok) (tested with version ??)
+
+<!--
 - [Libvips](https://www.libvips.org/)
+
+-->
 
 ## Installation of dependencies
 
@@ -25,6 +29,7 @@ Download the latest binaries of the Grok image compression software for your pla
 
 To install, just extract the ZIP file to your local file system.
 
+<!--
 ### Libvips
 
 On Linux (Ubuntu, Linux Mint), install libvips using:
@@ -34,6 +39,21 @@ sudo apt install libvips-dev --no-install-recommends
 ```
 
 For installation on other platforms, see [instructions here](https://www.libvips.org/install.html).
+
+-->
+
+
+BUT from [Pyvips docs](https://github.com/libvips/pyvips) under "binary installation", this mentions:
+
+```
+pip install "pyvips[binary]"
+```
+
+> This installs a self-contained package with the most commonly needed libraries. It should just work on most platforms, including Linux, Windows and macOS, with 64 and 32 bit x64 and ARM CPUs. Note that this libvips is missing features like PDF load and OpenSlide support.
+>
+> If your platform is unsupported or the pre-built binary is unsuitable, you can install libvips separately instead.
+
+This seems to work without having to install libvips separately! 
 
 <!-- TODO: add instructions for Windows, MacOS, based on libvips docs (and test if this actually works!) -->
 

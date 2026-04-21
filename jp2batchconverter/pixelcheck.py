@@ -8,6 +8,9 @@ import pyvips
 def sumSqDiff(image1, image2):
     """ Returns sum of squared difference between two images"""
 
+    print("######## TEST pyvips.API_mode: #####")
+    print(pyvips.API_mode)
+
     try:
         im1 = pyvips.Image.new_from_file(image1)
         im2 = pyvips.Image.new_from_file(image2)

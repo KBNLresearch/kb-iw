@@ -14,10 +14,7 @@ The software also generates checksums of all converted images.
 - Python (tested with version 3.12)
 - [Grok JPEG 2000 codec](https://github.com/GrokImageCompression/grok) (tested with version ??)
 
-<!--
 - [Libvips](https://www.libvips.org/)
-
--->
 
 ## Installation of dependencies
 
@@ -29,7 +26,6 @@ Download the latest binaries of the Grok image compression software for your pla
 
 To install, just extract the ZIP file to your local file system.
 
-<!--
 ### Libvips
 
 On Linux (Ubuntu, Linux Mint), install libvips using:
@@ -38,24 +34,41 @@ On Linux (Ubuntu, Linux Mint), install libvips using:
 sudo apt install libvips-dev --no-install-recommends
 ```
 
-For installation on other platforms, see [instructions here](https://www.libvips.org/install.html).
+For installation on other platforms, see [instructions here](https://www.libvips.org/install.html), and also [here](https://pypi.org/project/pyvips/).
 
--->
+<!--
 
+Pyvips docs (<https://libvips.github.io/pyvips/README.html>) mention 2 installation types:
 
-BUT from [Pyvips docs](https://github.com/libvips/pyvips) under "binary installation", this mentions:
+- binary (no need to install libvips separately)
+- local (needs separate libvips install)
+
+Tried binary install:
 
 ```
 pip install "pyvips[binary]"
 ```
 
-> This installs a self-contained package with the most commonly needed libraries. It should just work on most platforms, including Linux, Windows and macOS, with 64 and 32 bit x64 and ARM CPUs. Note that this libvips is missing features like PDF load and OpenSlide support.
->
-> If your platform is unsupported or the pre-built binary is unsuitable, you can install libvips separately instead.
+This works, but doesn't recognise JP2! So it seems we need a local install instead, using:
 
-This seems to work without having to install libvips separately! 
+```
+sudo apt install libvips-dev --no-install-recommends
+pip install pyvips
 
-<!-- TODO: add instructions for Windows, MacOS, based on libvips docs (and test if this actually works!) -->
+```
+
+BUT even after uninstalling "pyvips[binary]" first, pyvips ended up not recognising JP2 images (apparently it remained stuck in cffi API mode).
+I was only able to fix this by deleting my Python venv and creating a new one (and then installing pyvips).
+
+-->
+
+## Imported Python packages
+
+- lxml
+- pyvips
+- jpylyzer
+
+TODO: add to setup.py, or better a [pyproject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) file
 
 
 <!--

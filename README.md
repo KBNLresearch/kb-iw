@@ -2,15 +2,43 @@
 
 ## About this software
 
-Jp2batchconverter converts image files in digitisation batches to JP2 (JPEG 2000 Part 1) format. It clones the structure of the input directory, and then replicates it in the output directory. The JP2 images are then subjected to the following quality checks:
+Jp2batchconverter converts image files in digitisation batches to JP2 (JPEG 2000 Part 1) format using the [Grok](https://github.com/GrokImageCompression/grok) codec. It clones the structure of the input directory, and then replicates it in the output directory. The JP2 images are then subjected to the following quality checks:
 
-1. Pixel comparison between each pair of source and destination images (using [Pillow](https://pillow.readthedocs.io/)).
+1. Pixel comparison between each pair of source and destination images (using [libvips](https://www.libvips.org/) and [pyvips](https://libvips.github.io/pyvips/)).
 2. Check of extracted technical properties (using [jpylyzer](https://jpylyzer.openpreservation.org/)) against a user-defined [Schematron](http://en.wikipedia.org/wiki/Schematron) profile.
 
-The software also generates checksums of all converted images.  It uses [Pillow](https://pillow.readthedocs.io/) to extract the relevant technical properties.
+The software also generates checksums of all converted images.
+
+## Dependencies
+
+- Python (tested with version 3.12)
+- [Grok JPEG 2000 codec](https://github.com/GrokImageCompression/grok) (tested with version ??)
+- [Libvips](https://www.libvips.org/)
+
+## Installation of dependencies
+
+### Grok
+
+Download the latest binaries of the Grok image compression software for your platform:
+
+<https://github.com/GrokImageCompression/grok/releases>
+
+To install, just extract the ZIP file to your local file system.
+
+### Libvips
+
+On Linux (Ubuntu, Linux Mint), install libvips using:
+
+```
+sudo apt install libvips-dev --no-install-recommends
+```
+
+For installation on other platforms, see [instructions here](https://www.libvips.org/install.html).
+
+<!-- TODO: add instructions for Windows, MacOS, based on libvips docs (and test if this actually works!) -->
+
 
 <!--
-## Installation
 
 As of 2025, [uv](https://docs.astral.sh/uv/) appears to be the most straightforward tool for installing Python applications on a variety of platforms (Linux, MacOS, Windows).
 

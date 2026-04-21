@@ -126,6 +126,9 @@ def workflowGeneric(dirIn, dirOut, configPath, configDict):
     # List of file extensions to process (case insensitive)
     extensions = configDict["inExtensions"]
 
+    # Output delimiter
+    outDelimiter = configDict["outDelimiter"]
+
     # List of all input files
     listFiles = getFilesFromTree(dirIn, extensions)
 
@@ -144,8 +147,7 @@ def workflowGeneric(dirIn, dirOut, configPath, configDict):
     summaryHeadings = ["fileIn", "fileOut", "successGrok", "successPixelCheck", "successJpylyzerCheck", "failedJpylyzerChecks"]
 
     with open(summaryFile, 'w', newline='', encoding='utf-8') as fSum:
-        # TODO read delimiter from configuration file
-        writer = csv.writer(fSum, delimiter=";")
+        writer = csv.writer(fSum, delimiter=outDelimiter)
         writer.writerow(summaryHeadings)
 
     # Checksum file
@@ -236,7 +238,7 @@ def workflowGeneric(dirIn, dirOut, configPath, configDict):
 
         # Write outcomes of QA checks to summary file
         with open(summaryFile, 'a', newline='', encoding='utf-8') as fSum:
-            writer = csv.writer(fSum, delimiter=";")
+            writer = csv.writer(fSum, delimiter=outDelimiter)
             row = [fileIn, fileOut, successGrok, successPixelCheck, successJpylyzerCheck, schTestsFailedStr]
             writer.writerow(row)
 

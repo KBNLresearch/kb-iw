@@ -37,12 +37,6 @@ def workflowGeneric(dirIn, dirOut, configPath, configDict):
 
     # Summary file
     summaryFile = os.path.join(dirOut, "summary.csv")
-    summaryHeadings = ["fileIn", "fileOut", "successGrok", "successPixelCheck",
-                       "successJpylyzerCheck", "failedJpylyzerChecks"]
-
-    with open(summaryFile, 'w', newline='', encoding='utf-8') as fSum:
-        writer = csv.writer(fSum, delimiter=outDelimiter)
-        writer.writerow(summaryHeadings)
 
     # Checksum file
     checksumFile = os.path.join(dirOut, "checksums.sha256")
@@ -52,6 +46,14 @@ def workflowGeneric(dirIn, dirOut, configPath, configDict):
         os.remove(summaryFile)
     if os.path.isfile(checksumFile):
         os.remove(checksumFile)
+
+    # Write header to summary file
+    summaryHeadings = ["fileIn", "fileOut", "successGrok", "successPixelCheck",
+                       "successJpylyzerCheck", "failedJpylyzerChecks"]
+
+    with open(summaryFile, 'w', newline='', encoding='utf-8') as fSum:
+        writer = csv.writer(fSum, delimiter=outDelimiter)
+        writer.writerow(summaryHeadings)
 
     for fileIn in listFiles:
         successGrok = False

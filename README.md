@@ -13,7 +13,6 @@ The software also generates checksums of all converted images.
 
 - Python (tested with version 3.12)
 - [Grok JPEG 2000 codec](https://github.com/GrokImageCompression/grok) (tested with version ??)
-
 - [Libvips](https://www.libvips.org/)
 
 ## Installation of dependencies
@@ -38,7 +37,7 @@ For installation on other platforms, see [instructions here](https://www.libvips
 
 <!--
 
-Pyvips docs (<https://libvips.github.io/pyvips/README.html>) mention 2 installation types:
+NOTE - pyvips docs (<https://libvips.github.io/pyvips/README.html>) mention 2 installation types:
 
 - binary (no need to install libvips separately)
 - local (needs separate libvips install)
@@ -49,7 +48,14 @@ Tried binary install:
 pip install "pyvips[binary]"
 ```
 
-This works, but doesn't recognise JP2! So it seems we need a local install instead, using:
+This works, but doesn't recognise JP2! After some searching I found this:
+
+
+<https://github.com/libvips/pyvips/issues/558#issuecomment-3602902613>
+
+> or security the [binary] version only includes well-tested loaders, so openslide, jpeg2000, matlab, etc etc won't work.
+
+So it seems for JP2 support we need a local install, using:
 
 ```
 sudo apt install libvips-dev --no-install-recommends
@@ -57,9 +63,8 @@ pip install pyvips
 
 ```
 
-BUT even after uninstalling "pyvips[binary]" first, pyvips ended up not recognising JP2 images (apparently it remained stuck in cffi API mode).
+NOTE in my tests, even after uninstalling "pyvips[binary]" and then re-installing pyvips, pyvips ended up not recognising JP2 images (apparently it remained stuck in cffi API mode).
 I was only able to fix this by deleting my Python venv and creating a new one (and then installing pyvips).
-
 -->
 
 ## Imported Python packages

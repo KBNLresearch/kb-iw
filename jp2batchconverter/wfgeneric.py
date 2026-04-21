@@ -14,26 +14,29 @@ from . import pixelcheck
 from . import propertiescheck
 
 def workflowGeneric(dirIn, dirOut, configPath, configDict):
-    """Process all files in list"""
+    """Generic workflow: process all """
 
     # List of file extensions to process (case insensitive)
-    extensions = configDict["inExtensions"]
-
-    # Output delimiter
-    outDelimiter = configDict["outDelimiter"]
-
-    # List of all input files
-    listFiles = shared.getFilesFromTree(dirIn, extensions)
+    extensions = ["tif", "tiff"]
 
     # Schematron schema for properties check
     schema = os.path.join(configPath, "schemas", "kbMaster_2015.sch")
+
+    # Output delimiter
+    outDelimiter = ";"
+
+    # Compression profile
+    compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
+    #compressionProfile = "KB_ACCESS_LOSSY_01/01/2015"
+
+    # List of all input files
+    listFiles = shared.getFilesFromTree(dirIn, extensions)
 
     # Start Grok class instance
     grok = Grok()
     grok.configDict = configDict
     grok.configure()
-    grok.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
-    #grok.compressionProfile = "KB_ACCESS_LOSSY_01/01/2015"
+    grok.compressionProfile = compressionProfile
 
     # Summary file
     summaryFile = os.path.join(dirOut, "summary.csv")

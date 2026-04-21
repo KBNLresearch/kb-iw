@@ -16,7 +16,6 @@ import time
 import argparse
 import json
 import logging
-from lxml import etree
 from . import shared
 from . import wfgeneric
 

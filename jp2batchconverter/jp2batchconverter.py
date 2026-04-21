@@ -83,7 +83,28 @@ def configure(configPath):
     except:
         raise
 
-    # TODO validate contents of config file for completeness
+    # Some light validation of config file contents
+    if not "grokDir" in configDict:
+        msg = "\"grokDir\" entry missing configuration file"
+        shared.errorExit(msg)
+    if not "compressionProfiles" in configDict:
+        msg = "\"compressionProfiles\" entry missing in configuration file"
+        shared.errorExit(msg)
+
+    for compressionProfile in configDict["compressionProfiles"]:
+        print(type(compressionProfile["name"]))
+        if not "name" in compressionProfile:
+            msg = "\"name\" entry missing in configuration file"
+            shared.errorExit(msg)
+        if type(compressionProfile["name"]) != str:
+            msg = "\"name\" value is not a string"
+            shared.errorExit(msg)
+        if not "params" in compressionProfile:
+            msg = "\"params\" entry missing in configuration file"
+            shared.errorExit(msg)
+        if type(compressionProfile["params"]) != list:
+            msg = "\"params\" value is not a list"
+            shared.errorExit(msg)
 
     return configDict
 

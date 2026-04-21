@@ -119,9 +119,18 @@ def getFilesFromTree(rootDir, extensions):
     return filesList
 
 
-def processFiles(listFiles, dirIn, dirOut, configDict, schema):
+def workflowGeneric(dirIn, dirOut, configPath, configDict):
     """Process all files in list"""
     # TODO rewrite as a class
+
+    # List of file extensions to process (case insensitive)
+    extensions = configDict["inExtensions"]
+
+    # List of all input files
+    listFiles = getFilesFromTree(dirIn, extensions)
+
+    # Schematron schema for properties check
+    schema = os.path.join(configPath, "schemas", "kbMaster_2015.sch")
 
     # Start Grok class instance
     grok = Grok()
@@ -246,10 +255,6 @@ def main():
     # Get configuration, and set up local configuration if it doesn't exist)
     configDict = configure(configPath)
 
-    # List of file extensions to process (case insensitive)
-    # TODO perhaps allow user to override this using command-line option?
-    extensions = configDict["inExtensions"]
-
     # Get input from command line
     args = parseCommandLine()
     dirIn = os.path.normpath(args.dirIn)
@@ -276,20 +281,12 @@ def main():
                         level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')
 
-    # List of all files
-    listFiles = getFilesFromTree(dirIn, extensions)
-
     # Start clock for statistics
     start = time.time()
     logging.info("jp2batchconverter started: {}".format(time.asctime()))
 
-    ## TEST
-    # TODO think about where/how to set this (in config file?)
-    schema = os.path.join(configPath, "schemas", "kbMaster_2015.sch")
-    ## TEST
-
     # Process all input files
-    processFiles(listFiles, dirIn, dirOut, configDict, schema)
+    workflowGeneric(dirIn, dirOut, configPath, configDict)
 
     # Timing output
     end = time.time()

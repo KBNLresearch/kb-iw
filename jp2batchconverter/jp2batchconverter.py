@@ -29,18 +29,21 @@ parser = argparse.ArgumentParser(description="JP2 Batch converter")
 def parseCommandLine():
     """Parse command line"""
     # Add arguments
-    parser.add_argument('dirIn',
+    parser.add_argument("dirIn",
                         action="store",
                         type=str,
                         help="input directory")
-    parser.add_argument('dirOut',
+    parser.add_argument("dirOut",
                         action="store",
                         type=str,
                         help="output directory")
-    parser.add_argument('--version', '-v',
-                        action='version',
+    parser.add_argument("workflow",
+                        action="store",
+                        type=str,
+                        help="workflow (generic, metamorfoze, beeldstudio)")
+    parser.add_argument("--version", "-v",
+                        action="version",
                         version=__version__)
-
 
     # Parse arguments
     args = parser.parse_args()
@@ -104,6 +107,7 @@ def main():
     args = parseCommandLine()
     dirIn = os.path.normpath(args.dirIn)
     dirOut = os.path.normpath(args.dirOut)
+    workflow = os.path.normpath(args.workflow)
 
     # Check if files / directories exist
     shared.checkDirExists(dirIn)
@@ -119,19 +123,30 @@ def main():
         msg = "directory {} is not writable".format(outDir)
         shared.errorExit(msg)
 
+    # Check if workflow value is valid
+    workflowsAllowed = ["generic", "metamorfoze", "beeldstudio"]
+    if workflow not in workflowsAllowed:
+        msg = "workflow \"{}\" does not exist. Expected one of these values:".format(workflow)
+        for wf in workflowsAllowed:
+            msg += "\n  - {}".format(wf)
+        shared.errorExit(msg)
+
     # Set up logging
     logFile = os.path.join(dirOut, 'jp2batchconverter.log')
     logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout),
                                   logging.FileHandler(logFile, 'a', 'utf-8')],
-                        level=logging.INFO,
-                        format='%(asctime)s - %(levelname)s - %(message)s')
+                                  level=logging.INFO,
+                                  format='%(asctime)s - %(levelname)s - %(message)s')
 
     # Start clock for statistics
     start = time.time()
     logging.info("jp2batchconverter started: {}".format(time.asctime()))
 
-    # Process all input files
-    wfgeneric.workflowGeneric(dirIn, dirOut, configPath, configDict)
+    logging.info("starting workflow \"{}\"".format(workflow))
+
+    # Run selected workflow
+    if workflow == "generic":
+        wfgeneric.workflowGeneric(dirIn, dirOut, configPath, configDict)
 
     # Timing output
     end = time.time()

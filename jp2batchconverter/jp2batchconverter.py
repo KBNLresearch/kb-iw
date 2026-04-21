@@ -131,17 +131,6 @@ def main():
 
     # Check if files / directories exist
     shared.checkDirExists(dirIn)
-    if not os.path.isdir(dirOut):
-        try:
-            os.makedirs(dirOut)
-        except exception:
-            msg = "creation of output directory {} failed".format(outDir)
-            shared.errorExit(msg)
-
-    # Check if outDir is writable
-    if not os.access(dirOut, os.W_OK):
-        msg = "directory {} is not writable".format(outDir)
-        shared.errorExit(msg)
 
     # Check if workflow value is valid
     workflowsAllowed = ["generic", "metamorfoze", "beeldstudio"]
@@ -150,6 +139,14 @@ def main():
         for wf in workflowsAllowed:
             msg += "\n  - {}".format(wf)
         shared.errorExit(msg)
+
+    # Create dirOut if it doesn't exist already
+    if not os.path.isdir(dirOut):
+        try:
+            os.makedirs(dirOut)
+        except exception:
+            msg = "creation of output directory {} failed".format(outDir)
+            shared.errorExit(msg)
 
     # Set up logging
     logFile = os.path.join(dirOut, 'jp2batchconverter.log')
@@ -161,7 +158,6 @@ def main():
     # Start clock for statistics
     start = time.time()
     logging.info("jp2batchconverter started: {}".format(time.asctime()))
-
     logging.info("starting workflow \"{}\"".format(workflow))
 
     # Run selected workflow

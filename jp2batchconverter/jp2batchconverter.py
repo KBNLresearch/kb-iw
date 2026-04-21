@@ -51,18 +51,40 @@ def parseCommandLine():
     return args
 
 
-def readConfigFile(configFile):
-    """read configuration file and return contents as dictionary"""
-    # TODO move to new config function
+def configure(configPath):
 
-    configDict = {}
+    """
+    Set up configuration dir if it doesn't exist already, and read configuration
+    """
+
+    # Locate package directory
+    packageDir = os.path.dirname(os.path.abspath(__file__))
+
+    # Config locations in installed package and system config folder
+    configDirPackage = os.path.join(packageDir, "conf")
+
+    # Check if package conf dir exists
+    shared.checkDirExists(configDirPackage)
+
+    # Copy contents of package config dir to system config dir
+    if not os.path.isdir(configPath):
+        shutil.copytree(configDirPackage, configPath, dirs_exist_ok = True)
+
+    configFile = os.path.join(configPath, "config.json")
+    if not os.path.isfile(configFile):
+        msg = "configuration file ({}) is missing".format(configFile)
+        shared.errorExit(msg)
 
     # Read config file to dictionary
+    configDict = {}
+
     try:
         with open(configFile, 'r', encoding='utf-8') as f:
             configDict = json.load(f)
     except:
         raise
+
+    # TODO validate contents of config file for completeness
 
     return configDict
 
@@ -212,7 +234,7 @@ def processFiles(listFiles, dirIn, dirOut, configDict, schema):
 
 def main():
     """Main function"""
-    # TODO: split CLI stuff and configuration stuff into separate functions
+
     # Path to configuration dir (from https://stackoverflow.com/a/53222876/1209004
     # and https://stackoverflow.com/a/13184486/1209004).
     configPath = os.path.join(
@@ -221,28 +243,8 @@ def main():
     os.path.join(os.environ['HOME'], '.config'),
     "jp2batchconverter")
 
-    # Locate package directory
-    packageDir = os.path.dirname(os.path.abspath(__file__))
-
-    # Config locations in installed package and system config folder
-    configDirPackage = os.path.join(packageDir, "conf")
-
-    # Check if package conf dir exists
-    shared.checkDirExists(configDirPackage)
-
-    # Copy contents of package config dir to system config dir
-    if not os.path.isdir(configPath):
-        shutil.copytree(configDirPackage, configPath, dirs_exist_ok = True)
-
-    configFile = os.path.join(configPath, "config.json")
-    if not os.path.isfile(configFile):
-        msg = "configuration file ({}) is missing".format(configFile)
-        shared.errorExit(msg)
-
-    # Read config file
-    configDict = readConfigFile(configFile)
-
-    # TODO validate contents of config file for completeness
+    # Get configuration, and set up local configuration if it doesn't exist)
+    configDict = configure(configPath)
 
     # List of file extensions to process (case insensitive)
     # TODO perhaps allow user to override this using command-line option?

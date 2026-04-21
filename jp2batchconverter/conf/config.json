@@ -1,6 +1,7 @@
 {
-    "grokDir":"~/grok",
+    "grokDir": "~/grok",
     "inExtensions": ["tif", "tiff"],
+    "outDelimiter": ";",
     "compressionProfiles":
     [
         {

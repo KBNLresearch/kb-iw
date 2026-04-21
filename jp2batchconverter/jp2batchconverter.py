@@ -14,14 +14,11 @@ import io
 import shutil
 import time
 import argparse
-import csv
 import json
 import logging
 from lxml import etree
 from . import shared
-from .grok import Grok
-from . import pixelcheck
-from . import propertiescheck
+from . import wfgeneric
 
 __version__ = "0.1.0"
 
@@ -89,160 +86,6 @@ def configure(configPath):
     return configDict
 
 
-def getFilesFromTree(rootDir, extensions):
-    """Walk down whole directory tree (including all subdirectories) and
-    return list of files whose extensions match extensions list
-    NOTE: directory names are disabled here!!
-    implementation is case insensitive (all search items converted to
-    upper case internally!
-    """
-
-    # Convert extensions to uppercase
-    extensions = [extension.upper() for extension in extensions]
-    filesList = []
-
-    for dirname, dirnames, filenames in os.walk(rootDir):
-        # Suppress directory names
-        for subdirname in dirnames:
-            thisDirectory = os.path.join(dirname, subdirname)
-
-        for filename in filenames:
-            if filename.startswith("._"):
-                # Ignore AppleDouble resource fork files (identified here by name)
-                pass
-            else:
-                thisFile = os.path.join(dirname, filename)
-                thisExtension = os.path.splitext(thisFile)[1]
-                thisExtension = thisExtension.upper().strip('.')
-                if extensions[0].strip() == '*' or thisExtension in extensions:
-                    filesList.append(os.path.abspath(thisFile))
-    return filesList
-
-
-def workflowGeneric(dirIn, dirOut, configPath, configDict):
-    """Process all files in list"""
-    # TODO rewrite as a class
-
-    # List of file extensions to process (case insensitive)
-    extensions = configDict["inExtensions"]
-
-    # Output delimiter
-    outDelimiter = configDict["outDelimiter"]
-
-    # List of all input files
-    listFiles = getFilesFromTree(dirIn, extensions)
-
-    # Schematron schema for properties check
-    schema = os.path.join(configPath, "schemas", "kbMaster_2015.sch")
-
-    # Start Grok class instance
-    grok = Grok()
-    grok.configDict = configDict
-    grok.configure()
-    grok.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
-    #grok.compressionProfile = "KB_ACCESS_LOSSY_01/01/2015"
-
-    # Summary file
-    summaryFile = os.path.join(dirOut, "summary.csv")
-    summaryHeadings = ["fileIn", "fileOut", "successGrok", "successPixelCheck", "successJpylyzerCheck", "failedJpylyzerChecks"]
-
-    with open(summaryFile, 'w', newline='', encoding='utf-8') as fSum:
-        writer = csv.writer(fSum, delimiter=outDelimiter)
-        writer.writerow(summaryHeadings)
-
-    # Checksum file
-    checksumFile = os.path.join(dirOut, "checksums.sha256")
-
-    # Remove any previous summary / checksum file instances
-    if os.path.isfile(summaryFile):
-        os.remove(summaryFile)
-    if os.path.isfile(checksumFile):
-        os.remove(checksumFile)
-
-    for fileIn in listFiles:
-        successGrok = False
-        successPixelCheck = False
-        successJpylyzerCheck = False
-        fileNameIn = os.path.basename(fileIn)
-        filePathIn = os.path.dirname(fileIn)
-        filePathInRel = os.path.relpath(filePathIn, start=dirIn)
-        filePathOut = os.path.abspath(os.path.join(dirOut, filePathInRel))
-
-        # Create filePathOut if it doesn't exist (including any missing parent dirs)
-        if not os.path.isdir(filePathOut):
-            os.makedirs(filePathOut)
-
-        # Construct name for output file
-        pre, ext = os.path.splitext(fileNameIn)
-        fileNameOut = "{}.{}".format(pre, "jp2")
-
-        fileOut = os.path.abspath(os.path.join(filePathOut, fileNameOut))
-
-        logging.info("#############################")
-        logging.info("Input image: {}".format(fileIn))
-        logging.info("Output image: {}".format(fileOut))
-
-        # Pass I/O to Grok instance and run the conversion
-        grok.imageIn = fileIn
-        grok.jp2Out = fileOut
-        grok.compress()
-
-        logging.info("grk_compress exit status: {}".format(grok.status))
-        if grok.status == 0:
-            successGrok = True
-            logging.info("grok.compress completed successfully")
-        elif grok.status != 0:
-            logging.error("abnormal grk_compress exit status")
-        if not grok.success:
-            logging.error("grok.compress function resulted in an exception")
-
-        # Check on pixel values
-        ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
-
-        if ssDiff == None:
-             logging.error("pixel difference check failed with exception")
-        if ssDiff == 0:
-            logging.info("pixel values of input and output images are identical")
-            successPixelCheck = True
-        else:
-            logging.error("pixel values of input and output images are not identical")
-        logging.info("Sum of squared pixel differences: {}".format(ssDiff))
-
-        # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
-        # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
-        status, schTestsFailed, jpTestsFailed = propertiescheck.propertiesCheck(fileOut, schema)
-        if status == "pass":
-            successJpylyzerCheck = True
-            logging.info("image conforms to Schematron rules")
-        else:
-            # Add failed tests to pipe-delimited string that is included in summary file
-            schTestsFailedOut = []
-            for schtest in schTestsFailed:
-                schTestsFailedOut.append(schtest[0])
-
-            schTestsFailedStr = '|'.join(schTestsFailedOut)
-            logging.error("image does not conform to Schematron rules")
-
-        # Calculate checksum (SHA-256)
-        checksum = shared.generate_file_sha256(fileOut)
-
-        # File reference, relative to output directory
-        fileOutRel = os.path.relpath(fileOut, start=dirOut)
-
-        # Construct checksum line, following https://superuser.com/a/1566139/681049
-        checksumLine = "{}  {}\n".format(checksum, fileOutRel)
-
-        # Write checksum line to file
-        with open(checksumFile, 'a', newline='', encoding='utf-8') as fC:
-            fC.write(checksumLine)
-
-        # Write outcomes of QA checks to summary file
-        with open(summaryFile, 'a', newline='', encoding='utf-8') as fSum:
-            writer = csv.writer(fSum, delimiter=outDelimiter)
-            row = [fileIn, fileOut, successGrok, successPixelCheck, successJpylyzerCheck, schTestsFailedStr]
-            writer.writerow(row)
-
-
 def main():
     """Main function"""
 
@@ -254,7 +97,7 @@ def main():
     os.path.join(os.environ['HOME'], '.config'),
     "jp2batchconverter")
 
-    # Get configuration, and set up local configuration if it doesn't exist)
+    # Get configuration, and set up local configuration if it doesn't exist
     configDict = configure(configPath)
 
     # Get input from command line
@@ -288,7 +131,7 @@ def main():
     logging.info("jp2batchconverter started: {}".format(time.asctime()))
 
     # Process all input files
-    workflowGeneric(dirIn, dirOut, configPath, configDict)
+    wfgeneric.workflowGeneric(dirIn, dirOut, configPath, configDict)
 
     # Timing output
     end = time.time()
@@ -297,7 +140,6 @@ def main():
     timeElapsed = end - start
     timeInMinutes = round((timeElapsed / 60), 2)
     logging.info("Elapsed time: {} minutes".format(timeInMinutes))
-
 
 
 if __name__ == "__main__":

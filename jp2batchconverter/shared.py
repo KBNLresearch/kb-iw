@@ -44,3 +44,33 @@ def generate_file_sha256(fileIn):
                 break
             m.update(buf)
     return m.hexdigest()
+
+
+def getFilesFromTree(rootDir, extensions):
+    """Walk down whole directory tree (including all subdirectories) and
+    return list of files whose extensions match extensions list
+    NOTE: directory names are disabled here!!
+    implementation is case insensitive (all search items converted to
+    upper case internally!
+    """
+
+    # Convert extensions to uppercase
+    extensions = [extension.upper() for extension in extensions]
+    filesList = []
+
+    for dirname, dirnames, filenames in os.walk(rootDir):
+        # Suppress directory names
+        for subdirname in dirnames:
+            thisDirectory = os.path.join(dirname, subdirname)
+
+        for filename in filenames:
+            if filename.startswith("._"):
+                # Ignore AppleDouble resource fork files (identified here by name)
+                pass
+            else:
+                thisFile = os.path.join(dirname, filename)
+                thisExtension = os.path.splitext(thisFile)[1]
+                thisExtension = thisExtension.upper().strip('.')
+                if extensions[0].strip() == '*' or thisExtension in extensions:
+                    filesList.append(os.path.abspath(thisFile))
+    return filesList

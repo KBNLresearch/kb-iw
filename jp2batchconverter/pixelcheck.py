@@ -9,12 +9,11 @@ def sumSqDiff(image1, image2):
     """ Returns sum of squared difference between two images"""
 
     try:
-        im1 = pyvips.Image.new_from_file(image1)
-        im2 = pyvips.Image.new_from_file(image2)
+        im1 = pyvips.Image.new_from_file(image1, access="sequential")
+        im2 = pyvips.Image.new_from_file(image2, access="sequential")
         # Compute difference image
-        diff = im1.subtract(im2)
         # Compute stats from differences image and convert to nested list
-        stats = diff.stats().tolist()
+        stats = (im1 - im2).stats().tolist()
         # First child list contains aggregated statistics for all bands,
         # subsequent child lists contain statistics for individual bands.
         # Documented here:

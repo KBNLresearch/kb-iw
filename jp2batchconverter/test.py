@@ -1,25 +1,18 @@
 #! /usr/bin/env python3
 
+
+import sys
+import logging
 import pyvips
 
+logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)],
+                    level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
-print("######## TEST pyvips.API_mode: #####")
-pyvips.API_mode = False
-print(pyvips.API_mode)
+logging.info("libvips version: {}.{}.{}".format(pyvips.base.version(0), pyvips.base.version(1), pyvips.base.version(2)))
+logging.info("API mode: {}".format(pyvips.API_mode))
 
-image1 = "/home/johan/kb/digitalisering/tifftojp2/test-tiff/bulls/MMIISG26_COL_OZ08_20230807_0725.tif"
-#image2 = "/home/johan/kb/digitalisering/tifftojp2/test-tiff/bulls/MMIISG26_COL_OZ08_20230807_0725.tif"
-
-image2 = "/home/johan/kb/digitalisering/tifftojp2/test-jp2/bulls/MMIISG26_COL_OZ08_20230807_0725.jp2"
-
-
+#image1 = "/home/johan/kb/digitalisering/tifftojp2/test-tiff/bulls/MMIISG26_COL_OZ08_20230807_0725.tif"
+image1 = "/home/johan/test/balloon_large.tif"
 im1 = pyvips.Image.new_from_file(image1)
-im2 = pyvips.Image.new_from_file(image2)
-# Compute difference image
-diff = im1.subtract(im2)
-# Compute stats from differences image and convert to nested list
-stats = diff.stats().tolist()
-print(stats)
-
-#ssDiff = stats[0][3]
-
+statistics = im1.stats()

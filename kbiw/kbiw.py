@@ -158,7 +158,7 @@ def main():
 
     # Start clock for statistics
     start = time.time()
-    logging.info("jp2batchconverter started: {}".format(time.asctime()))
+    logging.info("kb-iw started: {}".format(time.asctime()))
     logging.info("starting workflow \"{}\"".format(workflow))
 
     # Run selected workflow
@@ -167,7 +167,7 @@ def main():
 
     # Timing output
     end = time.time()
-    logging.info("jp2batchconverter ended: {}".format(time.asctime()))
+    logging.info("kb-iw ended: {}".format(time.asctime()))
     # Elapsed time (seconds)
     timeElapsed = end - start
     timeInMinutes = round((timeElapsed / 60), 2)

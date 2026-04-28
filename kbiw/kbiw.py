@@ -150,7 +150,7 @@ def main():
             shared.errorExit(msg)
 
     # Set up logging
-    logFile = os.path.join(dirOut, 'jp2batchconverter.log')
+    logFile = os.path.join(dirOut, 'kb-iw.log')
     logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout),
                                   logging.FileHandler(logFile, 'a', 'utf-8')],
                                   level=logging.INFO,

@@ -1,8 +1,8 @@
-# JP2 Batch Converter
+# KB Image Workflow Tool
 
 ## About this software
 
-Jp2batchconverter converts image files in digitisation batches to JP2 (JPEG 2000 Part 1) format using the [Grok](https://github.com/GrokImageCompression/grok) codec. It clones the structure of the input directory, and then replicates it in the output directory. The JP2 images are then subjected to the following quality checks:
+Kb-iw converts image files in digitisation batches to JP2 (JPEG 2000 Part 1) format using the [Grok](https://github.com/GrokImageCompression/grok) codec. It clones the structure of the input directory, and then replicates it in the output directory. The JP2 images are then subjected to the following quality checks:
 
 1. Pixel comparison between each pair of source and destination images (using [libvips](https://www.libvips.org/) and [pyvips](https://libvips.github.io/pyvips/)).
 2. Check of extracted technical properties (using [jpylyzer](https://jpylyzer.openpreservation.org/)) against a user-defined [Schematron](http://en.wikipedia.org/wiki/Schematron) profile.

@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-"""JP2 Batch converter
+"""KB Image Workflow Tool
 
 Johan van der Knijff
 
@@ -22,7 +22,7 @@ from . import wfgeneric
 __version__ = "0.1.0"
 
 # Create parser
-parser = argparse.ArgumentParser(description="JP2 Batch converter")
+parser = argparse.ArgumentParser(description="KB Image Workflow tool")
 
 
 def parseCommandLine():

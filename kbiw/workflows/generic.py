@@ -9,11 +9,11 @@ import csv
 import hashlib
 import logging
 from .. import shared
-from ..grok import Grok
+from .. import grok
 from .. import pixelcheck
 from .. import propertiescheck
 
-def workflowGeneric(dirIn, dirOut, configPath, configDict):
+def workflow(dirIn, dirOut, configPath, configDict):
     """Generic workflow: process all """
 
     # List of file extensions to process (case insensitive)
@@ -33,10 +33,10 @@ def workflowGeneric(dirIn, dirOut, configPath, configDict):
     listFiles = shared.getFilesFromTree(dirIn, extensions)
 
     # Start Grok class instance
-    grok = Grok()
-    grok.configDict = configDict
-    grok.configure()
-    grok.compressionProfile = compressionProfile
+    myGrok = grok.Grok()
+    myGrok.configDict = configDict
+    myGrok.configure()
+    myGrok.compressionProfile = compressionProfile
 
     # Summary file
     summaryFile = os.path.join(dirOut, "summary.csv")
@@ -82,17 +82,17 @@ def workflowGeneric(dirIn, dirOut, configPath, configDict):
         logging.info("Output image: {}".format(fileOut))
 
         # Pass I/O to Grok instance and run the conversion
-        grok.imageIn = fileIn
-        grok.jp2Out = fileOut
-        grok.compress()
+        myGrok.imageIn = fileIn
+        myGrok.jp2Out = fileOut
+        myGrok.compress()
 
-        logging.info("grk_compress exit status: {}".format(grok.status))
-        if grok.status == 0:
+        logging.info("grk_compress exit status: {}".format(myGrok.status))
+        if myGrok.status == 0:
             successGrok = True
             logging.info("grok.compress completed successfully")
-        elif grok.status != 0:
+        elif myGrok.status != 0:
             logging.error("abnormal grk_compress exit status")
-        if not grok.success:
+        if not myGrok.success:
             logging.error("grok.compress function resulted in an exception")
 
         # Check on pixel values

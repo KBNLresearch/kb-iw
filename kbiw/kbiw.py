@@ -19,6 +19,7 @@ import logging
 from . import shared
 from .workflows import generic
 
+
 __version__ = "0.1.0"
 
 # Create parser
@@ -162,7 +163,7 @@ def main():
 
     # Run selected workflow
     if workflow == "generic":
-        generic.workflowGeneric(dirIn, dirOut, configPath, configDict)
+        generic.workflow(dirIn, dirOut, configPath, configDict)
 
     # Timing output
     end = time.time()

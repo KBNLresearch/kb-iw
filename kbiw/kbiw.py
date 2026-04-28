@@ -17,7 +17,7 @@ import argparse
 import json
 import logging
 from . import shared
-from . import wfgeneric
+from .workflows import generic
 
 __version__ = "0.1.0"
 
@@ -162,7 +162,7 @@ def main():
 
     # Run selected workflow
     if workflow == "generic":
-        wfgeneric.workflowGeneric(dirIn, dirOut, configPath, configDict)
+        generic.workflowGeneric(dirIn, dirOut, configPath, configDict)
 
     # Timing output
     end = time.time()

@@ -8,10 +8,10 @@ import os
 import csv
 import hashlib
 import logging
-from . import shared
-from .grok import Grok
-from . import pixelcheck
-from . import propertiescheck
+from .. import shared
+from ..grok import Grok
+from .. import pixelcheck
+from .. import propertiescheck
 
 def workflowGeneric(dirIn, dirOut, configPath, configDict):
     """Generic workflow: process all """

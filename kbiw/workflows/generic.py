@@ -95,6 +95,9 @@ def workflow(dirIn, dirOut, configPath, configDict):
         if not myGrok.success:
             logging.error("grok.compress function resulted in an exception")
 
+        logging.info("grk_compress stdout: {}".format(myGrok.out))
+        logging.info("grk_compress stderr: {}".format(myGrok.errors))
+
         # Check on pixel values
         ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
 

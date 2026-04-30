@@ -149,8 +149,14 @@ def main():
             msg = "creation of output directory {} failed".format(outDir)
             shared.errorExit(msg)
 
-    # Set up logging
+    # Log file
     logFile = os.path.join(dirOut, 'kb-iw.log')
+
+    # Remove any previous log file instances
+    if os.path.isfile(logFile):
+        os.remove(logFile)
+
+    # Set up logging
     logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout),
                                   logging.FileHandler(logFile, 'a', 'utf-8')],
                                   level=logging.INFO,

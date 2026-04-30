@@ -76,8 +76,8 @@ class Grok:
         cmdStr = " ".join(args)
 
         out = ""
-        errors = ""
-        status =""
+        err = ""
+        status = ""
 
         # Run grk_compress as subprocess
         try:
@@ -91,7 +91,7 @@ class Grok:
 
         self.status = status
         self.out = out
-        self.errors = errors
+        self.errors = err
 
 
 

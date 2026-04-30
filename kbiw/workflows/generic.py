@@ -62,6 +62,7 @@ def workflow(dirIn, dirOut, configPath, configDict):
         successGrok = False
         successPixelCheck = False
         successJpylyzerCheck = False
+        schTestsFailedStr = ""
         fileNameIn = os.path.basename(fileIn)
         filePathIn = os.path.dirname(fileIn)
         filePathInRel = os.path.relpath(filePathIn, start=dirIn)
@@ -84,8 +85,8 @@ def workflow(dirIn, dirOut, configPath, configDict):
         # Pass I/O to Grok instance and run the conversion
         myGrok.imageIn = fileIn
         myGrok.jp2Out = fileOut
-        myGrok.compress()
 
+        myGrok.compress()
         logging.info("grk_compress exit status: {}".format(myGrok.status))
         if myGrok.status == 0:
             successGrok = True
@@ -98,45 +99,66 @@ def workflow(dirIn, dirOut, configPath, configDict):
         logging.info("grk_compress stdout: {}".format(myGrok.out))
         logging.info("grk_compress stderr: {}".format(myGrok.errors))
 
-        # Check on pixel values
-        ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
 
-        if ssDiff == None:
-             logging.error("pixel difference check failed with exception")
-        if ssDiff == 0:
-            logging.info("pixel values of input and output images are identical")
-            successPixelCheck = True
-        else:
-            logging.error("pixel values of input and output images are not identical")
-        logging.info("Sum of squared pixel differences: {}".format(ssDiff))
+        ## TEST
+        logging.info("successGrok: {}".format(successGrok))
+        ## TEST
 
-        # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
-        # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
-        status, schTestsFailed, jpTestsFailed = propertiescheck.propertiesCheck(fileOut, schema)
-        if status == "pass":
-            successJpylyzerCheck = True
-            logging.info("image conforms to Schematron rules")
-        else:
-            # Add failed tests to pipe-delimited string that is included in summary file
-            schTestsFailedOut = []
-            for schtest in schTestsFailed:
-                schTestsFailedOut.append(schtest[0])
+        if successGrok:
 
-            schTestsFailedStr = '|'.join(schTestsFailedOut)
-            logging.error("image does not conform to Schematron rules")
+            ## TEST
+            logging.info("entering qua block")
+            ## TEST
 
-        # Calculate checksum (SHA-256)
-        checksum = shared.generate_file_sha256(fileOut)
+            try:
+                # Check on pixel values
+                ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
 
-        # File reference, relative to output directory
-        fileOutRel = os.path.relpath(fileOut, start=dirOut)
+                ## TEST
+                logging.info("ssDiff: {}".format(ssDiff))
+                ## TEST
 
-        # Construct checksum line, following https://superuser.com/a/1566139/681049
-        checksumLine = "{}  {}\n".format(checksum, fileOutRel)
 
-        # Write checksum line to file
-        with open(checksumFile, 'a', newline='', encoding='utf-8') as fC:
-            fC.write(checksumLine)
+                if ssDiff == None:
+                    logging.error("pixel difference check failed with exception")
+                if ssDiff == 0:
+                    logging.info("pixel values of input and output images are identical")
+                    successPixelCheck = True
+                else:
+                    logging.error("pixel values of input and output images are not identical")
+                logging.info("Sum of squared pixel differences: {}".format(ssDiff))
+
+            except Exception:
+                logging.error("pixel check failed")
+                ssDiff = None
+
+            # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
+            # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
+            status, schTestsFailed, jpTestsFailed = propertiescheck.propertiesCheck(fileOut, schema)
+            if status == "pass":
+                successJpylyzerCheck = True
+                logging.info("image conforms to Schematron rules")
+            else:
+                # Add failed tests to pipe-delimited string that is included in summary file
+                schTestsFailedOut = []
+                for schtest in schTestsFailed:
+                    schTestsFailedOut.append(schtest[0])
+
+                schTestsFailedStr = '|'.join(schTestsFailedOut)
+                logging.error("image does not conform to Schematron rules")
+
+            # Calculate checksum (SHA-256)
+            checksum = shared.generate_file_sha256(fileOut)
+
+            # File reference, relative to output directory
+            fileOutRel = os.path.relpath(fileOut, start=dirOut)
+
+            # Construct checksum line, following https://superuser.com/a/1566139/681049
+            checksumLine = "{}  {}\n".format(checksum, fileOutRel)
+
+            # Write checksum line to file
+            with open(checksumFile, 'a', newline='', encoding='utf-8') as fC:
+                fC.write(checksumLine)
 
         # Write outcomes of QA checks to summary file
         with open(summaryFile, 'a', newline='', encoding='utf-8') as fSum:

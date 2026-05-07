@@ -119,7 +119,7 @@ def main():
     os.environ.get('LOCALAPPDATA') or
     os.environ.get('XDG_CONFIG_HOME') or
     os.path.join(os.environ['HOME'], '.config'),
-    "jp2batchconverter")
+    "kb-iw")
 
     # Get configuration, and set up local configuration if it doesn't exist
     configDict = configure(configPath)

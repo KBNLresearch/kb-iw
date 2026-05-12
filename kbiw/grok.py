@@ -56,6 +56,38 @@ class Grok:
             # TODO - this is the MacOS equivalent of LD_LIBRARY_PATH, but not
             # sure if this works.
             os.environ['DYLD_LIBRARY_PATH'] = self.grok_lib_dir
+        # Get version
+        self.getVersion()
+
+
+    def getVersion(self):
+        """Get version number
+        """
+        self.success = True
+
+        # Select compression parameters from user-specified profile
+        for profile in self.configDict["compressionProfiles"]:
+            if profile["name"] == self.compressionProfile:
+                compressionArgs = profile["params"]
+
+        args = [self.grk_compress, "--version"]
+
+        out = ""
+        err = ""
+        status = ""
+
+        # Run grk_compress as subprocess
+        try:
+            p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE,
+                          shell=False, bufsize=1, universal_newlines=True)
+            out, err = p.communicate()
+            status = p.returncode
+
+        except Exception:
+            self.success = False
+
+        self.status = status
+        self.version = err
 
 
     def compress(self):

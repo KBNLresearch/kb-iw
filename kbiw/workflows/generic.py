@@ -36,6 +36,7 @@ def workflow(dirIn, dirOut, configPath, configDict):
     myGrok = grok.Grok()
     myGrok.configDict = configDict
     myGrok.configure()
+    logging.info("grk_compress version: {}".format(myGrok.version))
     myGrok.compressionProfile = compressionProfile
 
     # Summary file

@@ -58,8 +58,11 @@ def extractJpylyzer(resultJpylyzer):
 def propertiesCheck(JP2, schema):
     """Do properties check on one JP2"""
 
-    # Initialise status (pass/fail)
+    # Initialise output variables
     status = "fail"
+    schematronTestsFailed = ""
+    jpylyzerTestsFailed = ""
+    pallettedFlag = False
 
     # Initialise empty text string for error log output
     ptOutString = ""
@@ -68,6 +71,8 @@ def propertiesCheck(JP2, schema):
     try:
         resultJpylyzer = jpylyzer.checkOneFile(JP2)
         resultAsXML = ET.tostring(resultJpylyzer, 'UTF-8', 'xml')
+        if resultJpylyzer.find('properties/jp2HeaderBox/paletteBox'):
+            pallettedFlag = True
 
     except Exception:
         logging.error("error while running jpylyzer")
@@ -106,4 +111,4 @@ def propertiesCheck(JP2, schema):
     except Exception:
         logging.error("error while parsing jpylyzer output")
 
-    return status, schematronTestsFailed, jpylyzerTestsFailed
+    return status, schematronTestsFailed, jpylyzerTestsFailed, pallettedFlag

@@ -99,42 +99,12 @@ def workflow(dirIn, dirOut, configPath, configDict):
         logging.info("grk_compress stdout: {}".format(myGrok.out))
         logging.info("grk_compress stderr: {}".format(myGrok.errors))
 
-
-        ## TEST
-        logging.info("successGrok: {}".format(successGrok))
-        ## TEST
-
         if successGrok:
-
-            ## TEST
-            logging.info("entering qua block")
-            ## TEST
-
-            try:
-                # Check on pixel values
-                ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
-
-                ## TEST
-                logging.info("ssDiff: {}".format(ssDiff))
-                ## TEST
-
-
-                if ssDiff == None:
-                    logging.error("pixel difference check failed with exception")
-                if ssDiff == 0:
-                    logging.info("pixel values of input and output images are identical")
-                    successPixelCheck = True
-                else:
-                    logging.error("pixel values of input and output images are not identical")
-                logging.info("Sum of squared pixel differences: {}".format(ssDiff))
-
-            except Exception:
-                logging.error("pixel check failed")
-                ssDiff = None
 
             # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
             # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
-            status, schTestsFailed, jpTestsFailed = propertiescheck.propertiesCheck(fileOut, schema)
+            status, schTestsFailed, jpTestsFailed, pallettedFlag = propertiescheck.propertiesCheck(fileOut, schema)
+
             if status == "pass":
                 successJpylyzerCheck = True
                 logging.info("image conforms to Schematron rules")
@@ -146,6 +116,26 @@ def workflow(dirIn, dirOut, configPath, configDict):
 
                 schTestsFailedStr = '|'.join(schTestsFailedOut)
                 logging.error("image does not conform to Schematron rules")
+
+            try:
+                # Check on pixel values (skip for paletted images, because LibVips can't handle paletted JP2s)
+                if not pallettedFlag:
+                    ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
+                    if ssDiff == None:
+                        logging.error("pixel check failed with exception")
+                    if ssDiff == 0:
+                        logging.info("pixel values of input and output images are identical")
+                        successPixelCheck = True
+                    else:
+                        logging.error("pixel values of input and output images are not identical")
+                    logging.info("Sum of squared pixel differences: {}".format(ssDiff))
+                else:
+                    ssDiff = None
+                    logging.error("paletted image, skipped pixel check")
+
+            except Exception:
+                logging.error("pixel check failed")
+                ssDiff = None
 
             # Calculate checksum (SHA-256)
             checksum = shared.generate_file_sha256(fileOut)

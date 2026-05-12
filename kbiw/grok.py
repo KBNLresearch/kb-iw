@@ -65,11 +65,6 @@ class Grok:
         """
         self.success = True
 
-        # Select compression parameters from user-specified profile
-        for profile in self.configDict["compressionProfiles"]:
-            if profile["name"] == self.compressionProfile:
-                compressionArgs = profile["params"]
-
         args = [self.grk_compress, "--version"]
 
         out = ""

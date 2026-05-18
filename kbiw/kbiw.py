@@ -17,7 +17,7 @@ import argparse
 import json
 import logging
 from . import shared
-from .workflows import generic
+from .workflows import tifftojp2generic
 
 
 __version__ = "0.1.0"
@@ -133,7 +133,7 @@ def main():
     shared.checkDirExists(dirIn)
 
     # Check if workflow value is valid
-    workflowsAllowed = ["generic", "metamorfoze", "beeldstudio"]
+    workflowsAllowed = ["tifftojp2-generic", "tifftojp2-mh", "tifftojp2-bs"]
     if workflow not in workflowsAllowed:
         msg = "workflow \"{}\" does not exist. Expected one of these values:".format(workflow)
         for wf in workflowsAllowed:
@@ -167,8 +167,8 @@ def main():
     logging.info("starting workflow \"{}\"".format(workflow))
 
     # Run selected workflow
-    if workflow == "generic":
-        generic.workflow(dirIn, dirOut, configPath, configDict)
+    if workflow == "tifftojp2-generic":
+        tifftojp2generic.workflow(dirIn, dirOut, configPath, configDict)
 
     # Timing output
     end = time.time()

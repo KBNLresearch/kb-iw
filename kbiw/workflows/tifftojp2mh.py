@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 """
-Module with generic workflow
+TIFF to JP2 workflow for Middeleeuwse Handschriften
 """
 
 import os
@@ -13,11 +13,119 @@ from .. import grok
 from .. import pixelcheck
 from .. import propertiescheck
 
-def workflow(dirIn, dirOut, configPath, configDict):
-    """Generic workflow: process all """
 
-    # List of file extensions to process (case insensitive)
+def processImage(fileIn, dirIn, dirOut, grokInstance, schema, outDelimiter, summaryFile, checksumFile):
+    """Process one image"""
+    successGrok = False
+    successPixelCheck = False
+    successJpylyzerCheck = False
+    schTestsFailedStr = ""
+    fileNameIn = os.path.basename(fileIn)
+    filePathIn = os.path.dirname(fileIn)
+    filePathInRel = os.path.relpath(filePathIn, start=dirIn)
+    filePathOut = os.path.abspath(os.path.join(dirOut, filePathInRel))
+
+    # Create filePathOut if it doesn't exist (including any missing parent dirs)
+    if not os.path.isdir(filePathOut):
+        os.makedirs(filePathOut)
+
+    # Construct name for output file
+    pre, ext = os.path.splitext(fileNameIn)
+    fileNameOut = "{}.{}".format(pre, "jp2")
+
+    fileOut = os.path.abspath(os.path.join(filePathOut, fileNameOut))
+
+    logging.info("#############################")
+    logging.info("Input image: {}".format(fileIn))
+    logging.info("Output image: {}".format(fileOut))
+
+    # Pass I/O to Grok instance and run the conversion
+    grokInstance.imageIn = fileIn
+    grokInstance.jp2Out = fileOut
+
+    grokInstance.compress()
+    logging.info("grk_compress exit status: {}".format(grokInstance.status))
+    if grokInstance.status == 0:
+        successGrok = True
+        logging.info("grok.compress completed successfully")
+    elif grokInstance.status != 0:
+        logging.error("abnormal grk_compress exit status")
+    if not grokInstance.success:
+        logging.error("grok.compress function resulted in an exception")
+
+    logging.info("grk_compress stdout: {}".format(grokInstance.out))
+    logging.info("grk_compress stderr: {}".format(grokInstance.errors))
+
+    if successGrok:
+
+        # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
+        # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
+        status, schTestsFailed, jpTestsFailed, pallettedFlag = propertiescheck.propertiesCheck(fileOut, schema)
+
+        if status == "pass":
+            successJpylyzerCheck = True
+            logging.info("image conforms to Schematron rules")
+        else:
+            # Add failed tests to pipe-delimited string that is included in summary file
+            schTestsFailedOut = []
+            for schtest in schTestsFailed:
+                schTestsFailedOut.append(schtest[0])
+
+            schTestsFailedStr = '|'.join(schTestsFailedOut)
+            logging.warning("image does not conform to Schematron rules")
+
+        try:
+            # Check on pixel values (skip for paletted images, because LibVips can't handle paletted JP2s)
+            if not pallettedFlag:
+                ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
+                if ssDiff == None:
+                    logging.error("pixel check failed with exception")
+                if ssDiff == 0:
+                    logging.info("pixel values of input and output images are identical")
+                    successPixelCheck = True
+                else:
+                    logging.warning("pixel values of input and output images are not identical")
+                logging.info("Sum of squared pixel differences: {}".format(ssDiff))
+            else:
+                ssDiff = None
+                logging.warning("paletted image, skipped pixel check")
+
+        except Exception:
+            logging.error("pixel check failed")
+            ssDiff = None
+
+        # Calculate checksum (SHA-256)
+        checksum = shared.generate_file_sha256(fileOut)
+
+        # File reference, relative to output directory
+        fileOutRel = os.path.relpath(fileOut, start=dirOut)
+
+        # Construct checksum line, following https://superuser.com/a/1566139/681049
+        checksumLine = "{}  {}\n".format(checksum, fileOutRel)
+
+        # Write checksum line to file
+        with open(checksumFile, 'a', newline='', encoding='utf-8') as fC:
+            fC.write(checksumLine)
+
+    # Write outcomes of QA checks to summary file
+    with open(summaryFile, 'a', newline='', encoding='utf-8') as fSum:
+        writer = csv.writer(fSum, delimiter=outDelimiter)
+        row = [fileIn,
+            fileOut,
+            successGrok,
+            pallettedFlag,
+            successPixelCheck,
+            successJpylyzerCheck,
+            schTestsFailedStr]
+        writer.writerow(row)
+
+
+def workflow(dirIn, dirOut, configPath, configDict):
+    """Middeleeuwse Handschriften"""
+
+    # List of file extensions to process (upper case for case insensitive processing later)
     extensions = ["tif", "tiff"]
+    extensions = [extension.upper() for extension in extensions]
 
     # Schematron schema for properties check
     schema = os.path.join(configPath, "schemas", "kbMaster_2015.sch")
@@ -27,9 +135,6 @@ def workflow(dirIn, dirOut, configPath, configDict):
 
     # Compression profile
     compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
-
-    # List of all input files
-    listFiles = shared.getFilesFromTree(dirIn, extensions)
 
     # Start Grok class instance
     myGrok = grok.Grok()
@@ -63,106 +168,18 @@ def workflow(dirIn, dirOut, configPath, configDict):
         writer = csv.writer(fSum, delimiter=outDelimiter)
         writer.writerow(summaryHeadings)
 
-    for fileIn in listFiles:
-        successGrok = False
-        successPixelCheck = False
-        successJpylyzerCheck = False
-        schTestsFailedStr = ""
-        fileNameIn = os.path.basename(fileIn)
-        filePathIn = os.path.dirname(fileIn)
-        filePathInRel = os.path.relpath(filePathIn, start=dirIn)
-        filePathOut = os.path.abspath(os.path.join(dirOut, filePathInRel))
+    for dirname, dirnames, filenames in os.walk(dirIn):
+        # Suppress directory names
+        for subdirname in dirnames:
+            thisDirectory = os.path.join(dirname, subdirname)
 
-        # Create filePathOut if it doesn't exist (including any missing parent dirs)
-        if not os.path.isdir(filePathOut):
-            os.makedirs(filePathOut)
-
-        # Construct name for output file
-        pre, ext = os.path.splitext(fileNameIn)
-        fileNameOut = "{}.{}".format(pre, "jp2")
-
-        fileOut = os.path.abspath(os.path.join(filePathOut, fileNameOut))
-
-        logging.info("#############################")
-        logging.info("Input image: {}".format(fileIn))
-        logging.info("Output image: {}".format(fileOut))
-
-        # Pass I/O to Grok instance and run the conversion
-        myGrok.imageIn = fileIn
-        myGrok.jp2Out = fileOut
-
-        myGrok.compress()
-        logging.info("grk_compress exit status: {}".format(myGrok.status))
-        if myGrok.status == 0:
-            successGrok = True
-            logging.info("grok.compress completed successfully")
-        elif myGrok.status != 0:
-            logging.error("abnormal grk_compress exit status")
-        if not myGrok.success:
-            logging.error("grok.compress function resulted in an exception")
-
-        logging.info("grk_compress stdout: {}".format(myGrok.out))
-        logging.info("grk_compress stderr: {}".format(myGrok.errors))
-
-        if successGrok:
-
-            # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
-            # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
-            status, schTestsFailed, jpTestsFailed, pallettedFlag = propertiescheck.propertiesCheck(fileOut, schema)
-
-            if status == "pass":
-                successJpylyzerCheck = True
-                logging.info("image conforms to Schematron rules")
+        for filename in filenames:
+            if filename.startswith("._"):
+                # Ignore AppleDouble resource fork files (identified here by name)
+                pass
             else:
-                # Add failed tests to pipe-delimited string that is included in summary file
-                schTestsFailedOut = []
-                for schtest in schTestsFailed:
-                    schTestsFailedOut.append(schtest[0])
-
-                schTestsFailedStr = '|'.join(schTestsFailedOut)
-                logging.warning("image does not conform to Schematron rules")
-
-            try:
-                # Check on pixel values (skip for paletted images, because LibVips can't handle paletted JP2s)
-                if not pallettedFlag:
-                    ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
-                    if ssDiff == None:
-                        logging.error("pixel check failed with exception")
-                    if ssDiff == 0:
-                        logging.info("pixel values of input and output images are identical")
-                        successPixelCheck = True
-                    else:
-                        logging.warning("pixel values of input and output images are not identical")
-                    logging.info("Sum of squared pixel differences: {}".format(ssDiff))
-                else:
-                    ssDiff = None
-                    logging.warning("paletted image, skipped pixel check")
-
-            except Exception:
-                logging.error("pixel check failed")
-                ssDiff = None
-
-            # Calculate checksum (SHA-256)
-            checksum = shared.generate_file_sha256(fileOut)
-
-            # File reference, relative to output directory
-            fileOutRel = os.path.relpath(fileOut, start=dirOut)
-
-            # Construct checksum line, following https://superuser.com/a/1566139/681049
-            checksumLine = "{}  {}\n".format(checksum, fileOutRel)
-
-            # Write checksum line to file
-            with open(checksumFile, 'a', newline='', encoding='utf-8') as fC:
-                fC.write(checksumLine)
-
-        # Write outcomes of QA checks to summary file
-        with open(summaryFile, 'a', newline='', encoding='utf-8') as fSum:
-            writer = csv.writer(fSum, delimiter=outDelimiter)
-            row = [fileIn,
-                   fileOut,
-                   successGrok,
-                   pallettedFlag,
-                   successPixelCheck,
-                   successJpylyzerCheck,
-                   schTestsFailedStr]
-            writer.writerow(row)
+                thisFile = os.path.join(dirname, filename)
+                thisExtension = os.path.splitext(thisFile)[1]
+                thisExtension = thisExtension.upper().strip('.')
+                if thisExtension in extensions:
+                    processImage(thisFile, dirIn, dirOut, myGrok, schema, outDelimiter, summaryFile, checksumFile)

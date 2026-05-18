@@ -171,7 +171,12 @@ def main():
     if workflow == "tifftojp2-generic":
         tifftojp2generic.workflow(dirIn, dirOut, configPath, configDict)
     elif workflow == "tifftojp2-mh":
-        tifftojp2mh.workflow(dirIn, dirOut, configPath, configDict)
+        wf = tifftojp2mh.workflow()
+        wf.dirIn = dirIn
+        wf.dirOut = dirOut
+        wf.configPath = configPath
+        wf.configDict = configDict
+        wf.processBatch()
 
     # Timing output
     end = time.time()

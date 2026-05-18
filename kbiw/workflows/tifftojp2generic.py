@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 """
-Module with generic workflow
+Generic TIFF to JP2 workflow
 """
 
 import os
@@ -13,65 +13,33 @@ from .. import grok
 from .. import pixelcheck
 from .. import propertiescheck
 
-def workflow(dirIn, dirOut, configPath, configDict):
-    """Generic workflow: process all """
+class workflow:
+    """workflow class"""
 
-    # List of file extensions to process (case insensitive)
-    extensions = ["tif", "tiff"]
+    def __init__(self):
+        """initialise workflow class instance"""
+        self.dirIn = ""
+        self.dirOut = ""
+        self.configPath = ""
+        self.configDict = ""
+        self.compressionProfile = ""
+        self.grokInstance = ""
+        self.schema = ""
+        self.outDelimiter = ""
+        self.summaryFile = ""
+        self.checksumFile = ""
 
-    # Schematron schema for properties check
-    schema = os.path.join(configPath, "schemas", "kbMaster_2015.sch")
 
-    # Output delimiter
-    outDelimiter = ";"
-
-    # Compression profile
-    compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
-
-    # List of all input files
-    listFiles = shared.getFilesFromTree(dirIn, extensions)
-
-    # Start Grok class instance
-    myGrok = grok.Grok()
-    myGrok.configDict = configDict
-    myGrok.configure()
-    logging.info("grk_compress version: {}".format(myGrok.version))
-    myGrok.compressionProfile = compressionProfile
-
-    # Summary file
-    summaryFile = os.path.join(dirOut, "summary.csv")
-
-    # Checksum file
-    checksumFile = os.path.join(dirOut, "checksums.sha256")
-
-    # Remove any previous summary / checksum file instances
-    if os.path.isfile(summaryFile):
-        os.remove(summaryFile)
-    if os.path.isfile(checksumFile):
-        os.remove(checksumFile)
-
-    # Write header to summary file
-    summaryHeadings = ["fileIn",
-                       "fileOut",
-                       "successGrok",
-                       "palettedImage",
-                       "successPixelCheck",
-                       "successJpylyzerCheck",
-                       "failedJpylyzerChecks"]
-
-    with open(summaryFile, 'w', newline='', encoding='utf-8') as fSum:
-        writer = csv.writer(fSum, delimiter=outDelimiter)
-        writer.writerow(summaryHeadings)
-
-    for fileIn in listFiles:
+    def processImage(self, fileIn):
+        """Process one image"""
         successGrok = False
         successPixelCheck = False
         successJpylyzerCheck = False
         schTestsFailedStr = ""
         fileNameIn = os.path.basename(fileIn)
         filePathIn = os.path.dirname(fileIn)
-        filePathInRel = os.path.relpath(filePathIn, start=dirIn)
-        filePathOut = os.path.abspath(os.path.join(dirOut, filePathInRel))
+        filePathInRel = os.path.relpath(filePathIn, start=self.dirIn)
+        filePathOut = os.path.abspath(os.path.join(self.dirOut, filePathInRel))
 
         # Create filePathOut if it doesn't exist (including any missing parent dirs)
         if not os.path.isdir(filePathOut):
@@ -88,27 +56,27 @@ def workflow(dirIn, dirOut, configPath, configDict):
         logging.info("Output image: {}".format(fileOut))
 
         # Pass I/O to Grok instance and run the conversion
-        myGrok.imageIn = fileIn
-        myGrok.jp2Out = fileOut
+        self.grokInstance.imageIn = fileIn
+        self.grokInstance.jp2Out = fileOut
 
-        myGrok.compress()
-        logging.info("grk_compress exit status: {}".format(myGrok.status))
-        if myGrok.status == 0:
+        self.grokInstance.compress()
+        logging.info("grk_compress exit status: {}".format(self.grokInstance.status))
+        if self.grokInstance.status == 0:
             successGrok = True
             logging.info("grok.compress completed successfully")
-        elif myGrok.status != 0:
+        elif self.grokInstance.status != 0:
             logging.error("abnormal grk_compress exit status")
-        if not myGrok.success:
+        if not self.grokInstance.success:
             logging.error("grok.compress function resulted in an exception")
 
-        logging.info("grk_compress stdout: {}".format(myGrok.out))
-        logging.info("grk_compress stderr: {}".format(myGrok.errors))
+        logging.info("grk_compress stdout: {}".format(self.grokInstance.out))
+        logging.info("grk_compress stderr: {}".format(self.grokInstance.errors))
 
         if successGrok:
 
             # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
             # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
-            status, schTestsFailed, jpTestsFailed, pallettedFlag = propertiescheck.propertiesCheck(fileOut, schema)
+            status, schTestsFailed, jpTestsFailed, pallettedFlag = propertiescheck.propertiesCheck(fileOut, self.schema)
 
             if status == "pass":
                 successJpylyzerCheck = True
@@ -146,23 +114,88 @@ def workflow(dirIn, dirOut, configPath, configDict):
             checksum = shared.generate_file_sha256(fileOut)
 
             # File reference, relative to output directory
-            fileOutRel = os.path.relpath(fileOut, start=dirOut)
+            fileOutRel = os.path.relpath(fileOut, start=self.dirOut)
 
             # Construct checksum line, following https://superuser.com/a/1566139/681049
             checksumLine = "{}  {}\n".format(checksum, fileOutRel)
 
             # Write checksum line to file
-            with open(checksumFile, 'a', newline='', encoding='utf-8') as fC:
+            with open(self.checksumFile, 'a', newline='', encoding='utf-8') as fC:
                 fC.write(checksumLine)
 
         # Write outcomes of QA checks to summary file
-        with open(summaryFile, 'a', newline='', encoding='utf-8') as fSum:
-            writer = csv.writer(fSum, delimiter=outDelimiter)
+        with open(self.summaryFile, 'a', newline='', encoding='utf-8') as fSum:
+            writer = csv.writer(fSum, delimiter=self.outDelimiter)
             row = [fileIn,
-                   fileOut,
-                   successGrok,
-                   pallettedFlag,
-                   successPixelCheck,
-                   successJpylyzerCheck,
-                   schTestsFailedStr]
+                fileOut,
+                successGrok,
+                pallettedFlag,
+                successPixelCheck,
+                successJpylyzerCheck,
+                schTestsFailedStr]
             writer.writerow(row)
+
+
+    def processBatch(self):
+        """Process a batch"""
+
+        # List of file extensions to process (upper case for case insensitive processing later)
+        extensions = ["tif", "tiff"]
+        extensions = [extension.upper() for extension in extensions]
+
+        # Schematron schema for properties check
+        self.schema = os.path.join(self.configPath, "schemas", "kbMaster_2015.sch")
+
+        # Output delimiter
+        self.outDelimiter = ";"
+
+        # Compression profile
+        self.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
+
+        # Start Grok class instance
+        self.grokInstance = grok.Grok()
+        self.grokInstance.configDict = self.configDict
+        self.grokInstance.configure()
+        logging.info("grk_compress version: {}".format(self.grokInstance.version))
+        self.grokInstance.compressionProfile = self.compressionProfile
+
+        # Summary file
+        self.summaryFile = os.path.join(self.dirOut, "summary.csv")
+
+        # Checksum file
+        self.checksumFile = os.path.join(self.dirOut, "checksums.sha256")
+
+        # Remove any previous summary / checksum file instances
+        if os.path.isfile(self.summaryFile):
+            os.remove(self.summaryFile)
+        if os.path.isfile(self.checksumFile):
+            os.remove(self.checksumFile)
+
+        # Write header to summary file
+        summaryHeadings = ["fileIn",
+                        "fileOut",
+                        "successGrok",
+                        "palettedImage",
+                        "successPixelCheck",
+                        "successJpylyzerCheck",
+                        "failedJpylyzerChecks"]
+
+        with open(self.summaryFile, 'w', newline='', encoding='utf-8') as fSum:
+            writer = csv.writer(fSum, delimiter=self.outDelimiter)
+            writer.writerow(summaryHeadings)
+
+        for dirname, dirnames, filenames in os.walk(self.dirIn):
+            # Suppress directory names
+            for subdirname in dirnames:
+                thisDirectory = os.path.join(dirname, subdirname)
+
+            for filename in filenames:
+                if filename.startswith("._"):
+                    # Ignore AppleDouble resource fork files (identified here by name)
+                    pass
+                else:
+                    thisFile = os.path.join(dirname, filename)
+                    thisExtension = os.path.splitext(thisFile)[1]
+                    thisExtension = thisExtension.upper().strip('.')
+                    if thisExtension in extensions:
+                        self.processImage(thisFile)

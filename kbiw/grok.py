@@ -82,7 +82,7 @@ class Grok:
             self.success = False
 
         self.status = status
-        self.version = err
+        self.version = out.strip()
 
 
     def compress(self):

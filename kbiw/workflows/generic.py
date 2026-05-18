@@ -120,7 +120,7 @@ def workflow(dirIn, dirOut, configPath, configDict):
                     schTestsFailedOut.append(schtest[0])
 
                 schTestsFailedStr = '|'.join(schTestsFailedOut)
-                logging.error("image does not conform to Schematron rules")
+                logging.warning("image does not conform to Schematron rules")
 
             try:
                 # Check on pixel values (skip for paletted images, because LibVips can't handle paletted JP2s)
@@ -132,11 +132,11 @@ def workflow(dirIn, dirOut, configPath, configDict):
                         logging.info("pixel values of input and output images are identical")
                         successPixelCheck = True
                     else:
-                        logging.error("pixel values of input and output images are not identical")
+                        logging.warning("pixel values of input and output images are not identical")
                     logging.info("Sum of squared pixel differences: {}".format(ssDiff))
                 else:
                     ssDiff = None
-                    logging.error("paletted image, skipped pixel check")
+                    logging.warning("paletted image, skipped pixel check")
 
             except Exception:
                 logging.error("pixel check failed")
@@ -162,6 +162,7 @@ def workflow(dirIn, dirOut, configPath, configDict):
                    fileOut,
                    successGrok,
                    pallettedFlag,
+                   successPixelCheck,
                    successJpylyzerCheck,
                    schTestsFailedStr]
             writer.writerow(row)

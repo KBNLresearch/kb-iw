@@ -5,6 +5,8 @@ TIFF to JP2 workflow for Middeleeuwse Handschriften
 """
 
 import os
+import sys ## TEST
+import shutil
 import csv
 import hashlib
 import logging
@@ -136,6 +138,18 @@ class workflow:
             writer.writerow(row)
 
 
+    def copyDir(self, dirIn):
+        """Copy input dir to same relative location in output batch"""
+
+        dirPathInRel = os.path.relpath(dirIn, start=self.dirIn)
+        dirPathIn = os.path.abspath(os.path.join(self.dirIn, dirPathInRel))
+        dirPathOut = os.path.abspath(os.path.join(self.dirOut, dirPathInRel))
+        try:
+            shutil.copytree(dirPathIn, dirPathOut, dirs_exist_ok = True)
+        except Exception:
+            logging.error("copying data from directory {} to {} resulted in an exception".format(dirPathIn, dirPathOut))
+
+
     def processBatch(self):
         """Process a batch"""
 
@@ -184,10 +198,12 @@ class workflow:
             writer = csv.writer(fSum, delimiter=self.outDelimiter)
             writer.writerow(summaryHeadings)
 
+        # Iterate over directories and files in batch
         for dirname, dirnames, filenames in os.walk(self.dirIn):
-            # Suppress directory names
             for subdirname in dirnames:
                 thisDirectory = os.path.join(dirname, subdirname)
+                if subdirname == "Pakbon":
+                    self.copyDir(thisDirectory)
 
             for filename in filenames:
                 if filename.startswith("._"):

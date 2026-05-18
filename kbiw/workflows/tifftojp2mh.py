@@ -22,6 +22,7 @@ class workflow:
         """initialise workflow class instance"""
         self.dirIn = ""
         self.dirOut = ""
+        self.extensions = []
         self.configPath = ""
         self.configDict = ""
         self.compressionProfile = ""
@@ -157,6 +158,10 @@ class workflow:
         dirPathIn = os.path.abspath(os.path.join(self.dirIn, dirPathInRel))
         dirPathOut = os.path.abspath(os.path.join(self.dirOut, dirPathInRel))
 
+        # Create output directory
+        if not os.path.isdir(dirPathOut):
+            os.makedirs(dirPathOut)
+
         files = os.listdir(dirPathIn)
         for f in files:
             fileIn = os.path.join(dirPathIn, f)
@@ -165,16 +170,49 @@ class workflow:
             fileExtension = fileExtension.upper().strip('.')
 
             if os.path.isfile(fileIn) and fileExtension == "CSV":
-                print("c table: {}".format(fileIn))
-        sys.exit()
+                self.updateCTable(fileIn, fileOut)
+
+
+    def updateCTable(self, fileIn, fileOut):
+        """Update concordance table"""
+
+        # TODO: might not work for file references that include paths
+        listOut = []
+        rowIndex = 0
+        with open(fileIn, 'r', newline='', encoding='utf-8') as fIn:
+            reader = csv.reader(fIn, delimiter=self.outDelimiter)
+            for row in reader:
+                if rowIndex == 0:
+                    # Header line
+                    listOut.append(row)
+                    rowIndex += 1
+                else:
+                    rowOut = []
+                    for fNameIn in row:
+                        pre, ext = os.path.splitext(fNameIn)
+                        ext = ext.strip(".").upper()
+                        if ext in self.extensions:
+                            fNameOut = "{}.{}".format(pre, "jp2")
+                        else:
+                            fNameOut = fNameIn
+                        rowOut.append(fNameOut)
+                    rowIndex += 1
+                    listOut.append(rowOut)
+
+        try:
+            with open(fileOut, 'w', newline='', encoding='utf-8') as fOut:
+                writer = csv.writer(fOut, delimiter=self.outDelimiter)
+                writer.writerows(listOut)
+        except Exception:
+            logging.error("couldn't write updated concordance table to {}".format(fileOut))
 
 
     def processBatch(self):
         """Process a batch"""
 
         # List of file extensions to process (upper case for case insensitive processing later)
-        extensions = ["tif", "tiff"]
-        extensions = [extension.upper() for extension in extensions]
+        self.extensions = ["tif", "tiff"]
+        self.extensions = [extension.upper() for extension in self.extensions]
 
         # Schematron schema for properties check
         self.schema = os.path.join(self.configPath, "schemas", "kbMaster_2015.sch")
@@ -236,5 +274,5 @@ class workflow:
                     thisFile = os.path.join(dirname, filename)
                     thisExtension = os.path.splitext(thisFile)[1]
                     thisExtension = thisExtension.upper().strip('.')
-                    if thisExtension in extensions:
+                    if thisExtension in self.extensions:
                         self.processImage(thisFile)

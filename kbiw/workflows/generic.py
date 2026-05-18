@@ -27,7 +27,6 @@ def workflow(dirIn, dirOut, configPath, configDict):
 
     # Compression profile
     compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
-    #compressionProfile = "KB_ACCESS_LOSSY_01/01/2015"
 
     # List of all input files
     listFiles = shared.getFilesFromTree(dirIn, extensions)

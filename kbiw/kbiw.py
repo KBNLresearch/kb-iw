@@ -93,7 +93,6 @@ def configure(configPath):
         shared.errorExit(msg)
 
     for compressionProfile in configDict["compressionProfiles"]:
-        print(type(compressionProfile["name"]))
         if not "name" in compressionProfile:
             msg = "\"name\" entry missing in configuration file"
             shared.errorExit(msg)

@@ -150,6 +150,25 @@ class workflow:
             logging.error("copying data from directory {} to {} resulted in an exception".format(dirPathIn, dirPathOut))
 
 
+    def updateCTables(self, dirIn):
+        """Update concordance tables"""
+
+        dirPathInRel = os.path.relpath(dirIn, start=self.dirIn)
+        dirPathIn = os.path.abspath(os.path.join(self.dirIn, dirPathInRel))
+        dirPathOut = os.path.abspath(os.path.join(self.dirOut, dirPathInRel))
+
+        files = os.listdir(dirPathIn)
+        for f in files:
+            fileIn = os.path.join(dirPathIn, f)
+            fileOut = os.path.join(dirPathOut, f)
+            fileExtension = os.path.splitext(f)[1]
+            fileExtension = fileExtension.upper().strip('.')
+
+            if os.path.isfile(fileIn) and fileExtension == "CSV":
+                print("c table: {}".format(fileIn))
+        sys.exit()
+
+
     def processBatch(self):
         """Process a batch"""
 
@@ -203,7 +222,11 @@ class workflow:
             for subdirname in dirnames:
                 thisDirectory = os.path.join(dirname, subdirname)
                 if subdirname == "Pakbon":
+                    # Files in Pakbon directory are copied without modification
                     self.copyDir(thisDirectory)
+                if subdirname == "Concordantie":
+                    # Update concordance tables
+                    self.updateCTables(thisDirectory)
 
             for filename in filenames:
                 if filename.startswith("._"):

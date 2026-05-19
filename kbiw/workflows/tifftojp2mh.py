@@ -286,6 +286,10 @@ class workflow:
                 if subdirname == "Pakbon":
                     # Files in Pakbon directory are copied without modification
                     self.copyDir(thisDirectory)
+                if subdirname == "Access_Renamed":
+                    # Files in Access_Renamed directory are copied without modification
+                    # TODO: check if this needs to be included at all!
+                    self.copyDir(thisDirectory)
                 if subdirname == "Concordantie":
                     # Update concordance tables
                     self.updateCTables(thisDirectory)

@@ -171,6 +171,7 @@ class workflow:
         dirPathInRel = os.path.relpath(dirIn, start=self.dirIn)
         dirPathIn = os.path.abspath(os.path.join(self.dirIn, dirPathInRel))
         dirPathOut = os.path.abspath(os.path.join(self.dirOut, dirPathInRel))
+        logging.info("copying directory {} to {}".format(dirPathIn, dirPathOut))
         try:
             shutil.copytree(dirPathIn, dirPathOut, dirs_exist_ok = True)
         except Exception:
@@ -206,6 +207,7 @@ class workflow:
         # TODO: might not work for file references that include paths
         listOut = []
         rowIndex = 0
+        logging.info("updating concordance table {} to {}".format(fileIn, fileOut))
         with open(fileIn, 'r', newline='', encoding='utf-8') as fIn:
             reader = csv.reader(fIn, delimiter=self.delimiterIn)
             for row in reader:
@@ -298,6 +300,9 @@ class workflow:
                     thisExtension = thisExtension.upper().strip('.')
                     if thisExtension in self.extensionsIn:
                         self.processImage(thisFile)
+
+        # Number of errors, warnings to log
+        logging.info("workflow completed with {} errors and {} warnings".format(self.noErrors, self.noWarnings))
 
         # Write summary file
         with open(self.summaryFile, 'w', newline='', encoding='utf-8') as fSum:

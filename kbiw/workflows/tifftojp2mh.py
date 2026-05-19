@@ -81,8 +81,7 @@ class workflow:
             os.remove(self.summaryFile)
 
         # Write header to batch manifest
-        manifestHeadings = ["fileIn",
-                        "fileOut",
+        manifestHeadings = ["image",
                         "successGrok",
                         "palettedImage",
                         "successPixelCheck",
@@ -118,6 +117,9 @@ class workflow:
                     thisExtension = thisExtension.upper().strip('.')
                     if thisExtension in self.extensionsIn:
                         self.processImage(thisFile)
+
+        # Cross check entries in concordance tables with batch manifest
+        self.concordanceCheck()
 
         # Number of errors, warnings to log
         logging.info("workflow completed with {} errors and {} warnings".format(self.noErrors, self.noWarnings))
@@ -233,8 +235,7 @@ class workflow:
         # Write outcomes of QA checks to batch manifest
         with open(self.batchManifest, 'a', newline='', encoding='utf-8') as fManifest:
             writer = csv.writer(fManifest, delimiter=self.delimiterOut)
-            row = [fileIn,
-                fileOut,
+            row = [fileOutRel,
                 successGrok,
                 pallettedFlag,
                 successPixelCheck,
@@ -313,3 +314,9 @@ class workflow:
         except Exception:
             logging.error("couldn't write updated concordance table to {}".format(fileOut))
             self.noErrors += 1
+
+
+    def concordanceCheck(self):
+        """Cross-check concordance tables against batch manifest"""
+
+        concordanceDir = os.join(self.dirOut, "Concordantie")

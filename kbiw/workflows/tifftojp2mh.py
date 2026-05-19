@@ -340,6 +340,12 @@ class workflow:
             rowIndex += 1
 
         concordanceDir = os.path.join(self.dirOut, "Concordantie")
+
+        # Stop here if concordance dir doesn't exist'
+        if not os.path.isdir(concordanceDir):
+            logging.error("concordance directory {} does not exist".format(concordanceDir))
+            self.noErrors += 1
+            return
         cTables = os.listdir(concordanceDir)
         for cTable in cTables:
             # First part of file name refers to directory in "Signaturen"

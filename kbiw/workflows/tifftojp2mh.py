@@ -20,18 +20,30 @@ class workflow:
 
     def __init__(self):
         """initialise workflow class instance"""
-        self.dirIn = ""
-        self.dirOut = ""
-        self.extensions = []
-        self.configPath = ""
-        self.configDict = ""
-        self.compressionProfile = ""
-        self.grokInstance = ""
-        self.schema = ""
-        self.outDelimiter = ""
-        self.summaryFile = ""
-        self.checksumFile = ""
-
+        # List of input extensions that will be converted to JP2
+        self.extensionsIn = ["tif", "tiff"]
+        # Compression profile (name only, path is added later)
+        self.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
+        # Schematron schema used for properties check
+        self.schema = "kbMaster_2015.sch"
+        # Delimiter used in input concordance tables
+        self.delimiterIn = ";"
+        # Delimiter used in summary file and output concordance tables
+        self.delimiterOut = ";"
+        # Summary file (name only, path is added later)
+        self.summaryFile = "summary.csv"
+        # Checksum file (name only, path is added later)
+        self.checksumFile = "checksums.sha256"
+        # Input batch directory
+        self.dirIn = None
+        # Output batch directory
+        self.dirOut = None
+        # Configuration path
+        self.configPath = None
+        # Configuratiojn dictionary
+        self.configDict = None
+        # Grok instance
+        self.grokInstance = None
 
     def processImage(self, fileIn):
         """Process one image"""
@@ -128,7 +140,7 @@ class workflow:
 
         # Write outcomes of QA checks to summary file
         with open(self.summaryFile, 'a', newline='', encoding='utf-8') as fSum:
-            writer = csv.writer(fSum, delimiter=self.outDelimiter)
+            writer = csv.writer(fSum, delimiter=self.delimiterOut)
             row = [fileIn,
                 fileOut,
                 successGrok,
@@ -180,7 +192,7 @@ class workflow:
         listOut = []
         rowIndex = 0
         with open(fileIn, 'r', newline='', encoding='utf-8') as fIn:
-            reader = csv.reader(fIn, delimiter=self.outDelimiter)
+            reader = csv.reader(fIn, delimiter=self.delimiterIn)
             for row in reader:
                 if rowIndex == 0:
                     # Header line
@@ -191,7 +203,7 @@ class workflow:
                     for fNameIn in row:
                         pre, ext = os.path.splitext(fNameIn)
                         ext = ext.strip(".").upper()
-                        if ext in self.extensions:
+                        if ext in self.extensionsIn:
                             fNameOut = "{}.{}".format(pre, "jp2")
                         else:
                             fNameOut = fNameIn
@@ -201,7 +213,7 @@ class workflow:
 
         try:
             with open(fileOut, 'w', newline='', encoding='utf-8') as fOut:
-                writer = csv.writer(fOut, delimiter=self.outDelimiter)
+                writer = csv.writer(fOut, delimiter=self.delimiterOut)
                 writer.writerows(listOut)
         except Exception:
             logging.error("couldn't write updated concordance table to {}".format(fileOut))
@@ -210,18 +222,11 @@ class workflow:
     def processBatch(self):
         """Process a batch"""
 
-        # List of file extensions to process (upper case for case insensitive processing later)
-        self.extensions = ["tif", "tiff"]
-        self.extensions = [extension.upper() for extension in self.extensions]
+        # Convert list of input file extensions to upper case
+        self.extensionsIn = [extension.upper() for extension in self.extensionsIn]
 
-        # Schematron schema for properties check
-        self.schema = os.path.join(self.configPath, "schemas", "kbMaster_2015.sch")
-
-        # Output delimiter
-        self.outDelimiter = ";"
-
-        # Compression profile
-        self.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
+        # Add path to Schematron schema for properties check
+        self.schema = os.path.join(self.configPath, "schemas", self.schema)
 
         # Start Grok class instance
         self.grokInstance = grok.Grok()
@@ -230,11 +235,11 @@ class workflow:
         logging.info("grk_compress version: {}".format(self.grokInstance.version))
         self.grokInstance.compressionProfile = self.compressionProfile
 
-        # Summary file
-        self.summaryFile = os.path.join(self.dirOut, "summary.csv")
+        # Add path to summary file
+        self.summaryFile = os.path.join(self.dirOut, self.summaryFile)
 
-        # Checksum file
-        self.checksumFile = os.path.join(self.dirOut, "checksums.sha256")
+        # Add path to checksum file
+        self.checksumFile = os.path.join(self.dirOut, self.checksumFile)
 
         # Remove any previous summary / checksum file instances
         if os.path.isfile(self.summaryFile):
@@ -252,7 +257,7 @@ class workflow:
                         "failedJpylyzerChecks"]
 
         with open(self.summaryFile, 'w', newline='', encoding='utf-8') as fSum:
-            writer = csv.writer(fSum, delimiter=self.outDelimiter)
+            writer = csv.writer(fSum, delimiter=self.delimiterOut)
             writer.writerow(summaryHeadings)
 
         # Iterate over directories and files in batch
@@ -274,5 +279,5 @@ class workflow:
                     thisFile = os.path.join(dirname, filename)
                     thisExtension = os.path.splitext(thisFile)[1]
                     thisExtension = thisExtension.upper().strip('.')
-                    if thisExtension in self.extensions:
+                    if thisExtension in self.extensionsIn:
                         self.processImage(thisFile)

@@ -316,8 +316,9 @@ class workflow:
             self.noErrors += 1
 
 
+
     def concordanceCheck(self):
-        """Cross-check concordance tables against batch manifest"""
+        """Cross-check concordance tables against batch manifest 9including reverse check)"""
         # TODO: code assumes fixed position + order of columns in concordance tables
         # verify if this is correct. If not, use column names.
 
@@ -327,7 +328,11 @@ class workflow:
             reader = csv.reader(fMan, delimiter=self.delimiterOut)
             manifestData = list(reader)
 
+        # List that will store all image references in the batch manifest
         imagesManifest = []
+
+        # List that will store all image references in all concordance tables
+        imagesAllCTables = []
         rowIndex = 0
         for row in manifestData:
             if rowIndex > 0:
@@ -345,6 +350,9 @@ class workflow:
                 reader = csv.reader(fCTab, delimiter=self.delimiterOut)
                 cTabData = list(reader)
 
+            # List that will store all image references in this concordance table
+            imagesCTable = []
+
             rowIndex = 0
             for row in cTabData:
                 if rowIndex > 0:
@@ -352,10 +360,7 @@ class workflow:
                     imageMaster = row[0]
                     # Add masterDirPath to get corresponding batch manifest value
                     imageMasterFullPath = os.path.join(masterDirPath, imageMaster)
-                    # Check against batch manifest
-                    if not imageMasterFullPath in imagesManifest:
-                        logging.error("image {} not found in batch manifest".format(imageMasterFullPath))
-                        self.noErrors += 1
+                    imagesCTable.append(imageMasterFullPath)
 
                     # Columns 3 - 6 refer to target images (column 2 refers to access images, which are not in manifest)
                     for i in range(2, 6):
@@ -365,8 +370,20 @@ class workflow:
                         targetDir = "{}_{}_{}".format(nameComponents[0], nameComponents[2], nameComponents[3])
                         # Construct full path in corresponding batch manifest value
                         imageTargetFullPath = os.path.join("Targets", targetDir, imageTarget)
-                        # Check against batch manifest
-                        if not imageTargetFullPath in imagesManifest:
-                            logging.error("image {} not found in batch manifest".format(imageTargetFullPath))
-                            self.noErrors += 1
+                        imagesCTable.append(imageTargetFullPath)
+
                 rowIndex += 1
+
+            for image in imagesCTable:
+                # Check against batch manifest
+                if not image in imagesManifest:
+                    logging.error("image {} from not found in batch manifest".format(image))
+                    self.noErrors += 1
+                # Add image to combined list of image references from all concordance tables
+                imagesAllCTables.append(image)
+
+        # Reverse check
+        for image in imagesManifest:
+            if not image in imagesAllCTables:
+                logging.error("image {} from batch manifest not referenced in any concordance table".format(image))
+                self.noErrors += 1

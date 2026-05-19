@@ -5,7 +5,6 @@ TIFF to JP2 workflow for Middeleeuwse Handschriften
 """
 
 import os
-import sys ## TEST
 import shutil
 import csv
 import hashlib

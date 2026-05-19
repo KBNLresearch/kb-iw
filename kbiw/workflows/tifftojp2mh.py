@@ -121,6 +121,7 @@ class workflow:
                     ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
                     if ssDiff == None:
                         logging.error("pixel check failed with exception")
+                        self.noErrors += 1
                     if ssDiff == 0:
                         logging.info("pixel values of input and output images are identical")
                         successPixelCheck = True
@@ -298,8 +299,9 @@ class workflow:
                     if thisExtension in self.extensionsIn:
                         self.processImage(thisFile)
 
-
+        # Write summary file
         with open(self.summaryFile, 'w', newline='', encoding='utf-8') as fSum:
-            fSum.write("Errors: {}".format(self.noErrors))
-            fSum.write("Warnings: {}".format(self.noWarnings))
-            fSum.write("See batch manifest and log file for details on errors and warnings")
+            fSum.write("Grok version: {}\n".format(self.grokInstance.version))
+            fSum.write("Errors: {}\n".format(self.noErrors))
+            fSum.write("Warnings: {}\n".format(self.noWarnings))
+            fSum.write("See batch manifest and log file for details on errors and warnings\n")

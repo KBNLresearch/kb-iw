@@ -30,8 +30,10 @@ class workflow:
         self.delimiterIn = ";"
         # Delimiter used in summary file and output concordance tables
         self.delimiterOut = ";"
+        # Batch manifest (name only, path is added later)
+        self.batchManifest = "manifest.csv"
         # Summary file (name only, path is added later)
-        self.summaryFile = "summary.csv"
+        self.summaryFile = "summary.txt"
         # Checksum file (name only, path is added later)
         self.checksumFile = "checksums.sha256"
         # Input batch directory
@@ -40,7 +42,7 @@ class workflow:
         self.dirOut = None
         # Configuration path
         self.configPath = None
-        # Configuratiojn dictionary
+        # Configuration dictionary
         self.configDict = None
         # Grok instance
         self.grokInstance = None
@@ -138,9 +140,9 @@ class workflow:
             with open(self.checksumFile, 'a', newline='', encoding='utf-8') as fC:
                 fC.write(checksumLine)
 
-        # Write outcomes of QA checks to summary file
-        with open(self.summaryFile, 'a', newline='', encoding='utf-8') as fSum:
-            writer = csv.writer(fSum, delimiter=self.delimiterOut)
+        # Write outcomes of QA checks to batch manifest
+        with open(self.batchManifest, 'a', newline='', encoding='utf-8') as fManifest:
+            writer = csv.writer(fManifest, delimiter=self.delimiterOut)
             row = [fileIn,
                 fileOut,
                 successGrok,
@@ -235,20 +237,20 @@ class workflow:
         logging.info("grk_compress version: {}".format(self.grokInstance.version))
         self.grokInstance.compressionProfile = self.compressionProfile
 
-        # Add path to summary file
-        self.summaryFile = os.path.join(self.dirOut, self.summaryFile)
+        # Add path to batch manifest file
+        self.batchManifest = os.path.join(self.dirOut, self.batchManifest)
 
         # Add path to checksum file
         self.checksumFile = os.path.join(self.dirOut, self.checksumFile)
 
-        # Remove any previous summary / checksum file instances
-        if os.path.isfile(self.summaryFile):
-            os.remove(self.summaryFile)
+        # Remove any previous batch manifest / checksum file instances
+        if os.path.isfile(self.batchManifest):
+            os.remove(self.batchManifest)
         if os.path.isfile(self.checksumFile):
             os.remove(self.checksumFile)
 
-        # Write header to summary file
-        summaryHeadings = ["fileIn",
+        # Write header to batch manifest
+        manifestHeadings = ["fileIn",
                         "fileOut",
                         "successGrok",
                         "palettedImage",
@@ -256,9 +258,9 @@ class workflow:
                         "successJpylyzerCheck",
                         "failedJpylyzerChecks"]
 
-        with open(self.summaryFile, 'w', newline='', encoding='utf-8') as fSum:
-            writer = csv.writer(fSum, delimiter=self.delimiterOut)
-            writer.writerow(summaryHeadings)
+        with open(self.batchManifest, 'w', newline='', encoding='utf-8') as fManifest:
+            writer = csv.writer(fManifest, delimiter=self.delimiterOut)
+            writer.writerow(manifestHeadings)
 
         # Iterate over directories and files in batch
         for dirname, dirnames, filenames in os.walk(self.dirIn):

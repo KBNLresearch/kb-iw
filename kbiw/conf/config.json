@@ -1,5 +1,6 @@
 {
     "grokDir": "~/grok",
+    "exifToolExecutable": "/bin/exiftool",
     "compressionProfiles":
     [
         {

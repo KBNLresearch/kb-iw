@@ -89,6 +89,9 @@ def configure(configPath):
     if not "grokDir" in configDict:
         msg = "\"grokDir\" entry missing configuration file"
         shared.errorExit(msg)
+    if not "exifToolExecutable" in configDict:
+        msg = "\"exifToolExecutable\" entry missing configuration file"
+        shared.errorExit(msg)
     if not "compressionProfiles" in configDict:
         msg = "\"compressionProfiles\" entry missing in configuration file"
         shared.errorExit(msg)
@@ -132,6 +135,15 @@ def main():
 
     # Check if files / directories exist
     shared.checkDirExists(dirIn)
+
+    # Check if ExifTool executable exists and is executable
+    exifToolExecutable = configDict["exifToolExecutable"]
+    if not os.path.isfile(exifToolExecutable):
+        msg = "exifToolExecutable ({}) is missing".format(exifToolExecutable)
+        shared.errorExit(msg)
+    if not os.access(exifToolExecutable, os.X_OK):
+        msg = "exifToolExecutable ({}) is not executable".format(exifToolExecutable)
+        shared.errorExit(msg)
 
     # Check if workflow value is valid
     workflowsAllowed = ["tifftojp2-generic", "tifftojp2-mh", "tifftojp2-bs"]

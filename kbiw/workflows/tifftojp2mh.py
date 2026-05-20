@@ -3,7 +3,7 @@
 """
 TIFF to JP2 workflow for Middeleeuwse Handschriften
 """
-import sys
+
 import os
 import shutil
 import csv

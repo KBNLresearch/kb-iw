@@ -35,6 +35,15 @@ sudo apt install libvips-dev --no-install-recommends
 
 For installation on other platforms, see [instructions here](https://www.libvips.org/install.html), and also [here](https://pypi.org/project/pyvips/).
 
+### ExifTool
+
+On Linux (Ubuntu, Linux Mint), install ExifTool using:
+
+```
+sudo apt install libimage-exiftool-perl
+```
+
+
 <!--
 
 NOTE - pyvips docs (<https://libvips.github.io/pyvips/README.html>) mention 2 installation types:
@@ -72,6 +81,7 @@ I was only able to fix this by deleting my Python venv and creating a new one (a
 - lxml
 - pyvips
 - jpylyzer
+- pyexiftool
 
 TODO: add to setup.py, or better a [pyproject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) file
 

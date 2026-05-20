@@ -9,6 +9,7 @@ import shutil
 import csv
 import hashlib
 import logging
+import exiftool
 from .. import shared
 from .. import grok
 from .. import pixelcheck
@@ -49,6 +50,8 @@ class workflow:
         self.configDict = None
         # Grok instance (set in processBatch function)
         self.grokInstance = None
+        # ExifTool instance (set in processBatch function)
+        self.etInstance = None
 
 
     def processBatch(self):
@@ -67,6 +70,12 @@ class workflow:
         logging.info("grk_compress version: {}".format(self.grokInstance.version))
         self.grokInstance.compressionProfile = self.compressionProfile
 
+        # Start ExifTool instance
+        # TODO: on Windows machine this probably needs some config to point to ExifTool.
+        # From docs:https://sylikc.github.io/pyexiftool/installation.html
+        # "you can specify the full pathname (...) by using `ExifTool(executable=<full path>)`
+        self.etInstance = exiftool.ExifToolHelper()
+
         # Add paths to batch manifest, checksum and summary files
         self.batchManifest = os.path.join(self.dirOut, self.batchManifest)
         self.checksumFile = os.path.join(self.dirOut, self.checksumFile)
@@ -83,6 +92,7 @@ class workflow:
         # Write header to batch manifest
         manifestHeadings = ["image",
                         "successGrok",
+                        "successExifTool",
                         "palettedImage",
                         "successPixelCheck",
                         "successJpylyzerCheck",
@@ -135,6 +145,7 @@ class workflow:
     def processImage(self, fileIn):
         """Process one image"""
         successGrok = False
+        successExifTool = False
         successPixelCheck = False
         successJpylyzerCheck = False
         schTestsFailedStr = ""
@@ -177,6 +188,16 @@ class workflow:
         logging.info("grk_compress stderr: {}".format(self.grokInstance.errors))
 
         if successGrok:
+
+            # Read metadata from input TIFF and write as XMP block to JP2
+            # Adapted from: https://exiftool.org/forum/index.php?topic=2922.0
+            try:
+                self.etInstance.execute("-tagsfromfile", fileIn, "-all>xmp:all", fileOut)
+                successExifTool = True
+            except Exception:
+                logging.error("ExifTool failed to copy metadata from TIFF to JP2")
+                successExifTool = False
+                self.noErrors += 1
 
             # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
             # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
@@ -237,6 +258,7 @@ class workflow:
             writer = csv.writer(fManifest, delimiter=self.delimiterOut)
             row = [fileOutRel,
                 successGrok,
+                successExifTool,
                 pallettedFlag,
                 successPixelCheck,
                 successJpylyzerCheck,

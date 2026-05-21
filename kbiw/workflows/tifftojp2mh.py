@@ -25,7 +25,7 @@ class workflow:
         # Compression profile (name only, path is added later)
         self.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
         # Schematron schema used for properties check
-        self.schema = "kbMaster_2015.sch"
+        self.schema = "kbMaster_2026.sch"
         # Delimiter used in input concordance tables
         self.delimiterIn = ";"
         # Delimiter used in summary file and output concordance tables
@@ -189,7 +189,7 @@ class workflow:
             # Read metadata from input TIFF and write as XMP block to JP2
             # Adapted from: https://exiftool.org/forum/index.php?topic=2922.0
             try:
-                self.etInstance.execute("-tagsfromfile", fileIn, "-all>xmp:all", fileOut)
+                self.etInstance.execute("-tagsfromfile", fileIn, "-all>xmp:all", "-overwrite_original", fileOut)
                 successExifTool = True
             except Exception:
                 logging.error("ExifTool failed to copy metadata from TIFF to JP2")

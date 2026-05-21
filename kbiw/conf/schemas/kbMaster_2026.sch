@@ -119,9 +119,14 @@ Schematron jpylyzer schema for KB lossless preservation master (A.K.A. KB_MASTER
       <s:rule context="/file/properties/uuidBox/x:xmpmeta/rdf:RDF">
 
           <!-- Check that RDF element contains one or more Description elements -->
-          <s:assert test="(count(rdf:Description) &gt; 0)">missing Description element(s)</s:assert>
+          <s:assert test="count(rdf:Description) &gt; 0">missing Description element(s)</s:assert>
+          <!-- Checks on RDF representations of EXIF tags -->
+          <s:assert test="count(rdf:Description/exif:DateTimeOriginal) &gt; 0">missing DateTimeOriginal tag</s:assert>
+          <s:assert test="rdf:Description/exif:DateTimeOriginal  != ''">empty DateTimeOriginal tag</s:assert>
 
       </s:rule>
+
+
 
 </s:pattern>
 </s:schema>

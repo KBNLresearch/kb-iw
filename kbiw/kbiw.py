@@ -41,7 +41,7 @@ def parseCommandLine():
     parser.add_argument("workflow",
                         action="store",
                         type=str,
-                        help="workflow (generic, metamorfoze, beeldstudio)")
+                        help="workflow (tifftojp2-generic, tifftojp2-mh)")
     parser.add_argument("--version", "-v",
                         action="version",
                         version=__version__)

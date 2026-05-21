@@ -5,7 +5,7 @@ Schematron jpylyzer schema for KB lossless preservation master (A.K.A. KB_MASTER
 <s:schema xmlns:s="http://purl.oclc.org/dsdl/schematron">
 <s:ns uri="adobe:ns:meta/" prefix="x"/>
 <s:ns uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#" prefix="rdf"/>
-<s:ns uri="http://ns.adobe.com/photoshop/1.0/" prefix="photoshop"/>
+<s:ns uri="http://ns.adobe.com/exif/1.0/" prefix="exif"/>
 
 <s:pattern>
     <s:title>KB master JP2 2026, generic (no colour/resolution requirements)</s:title>
@@ -20,7 +20,7 @@ Schematron jpylyzer schema for KB lossless preservation master (A.K.A. KB_MASTER
 
         <!-- check that success value equals 'True' -->
         <s:assert test="statusInfo/success = 'True'">jpylyzer did not run successfully</s:assert>
-         
+
         <!-- check that isValid element exists with the text 'True' -->
         <s:assert test="isValid = 'True'">not valid JP2</s:assert>
     </s:rule>
@@ -30,7 +30,7 @@ Schematron jpylyzer schema for KB lossless preservation master (A.K.A. KB_MASTER
 
         <!-- check that UUID box with XMP metadata exists -->
         <s:assert test="uuidBox and uuidBox/x:xmpmeta">no UUID box with XMP metadata</s:assert>
-    
+
     </s:rule>
 
     <!-- check that resolution box exists -->
@@ -107,6 +107,22 @@ Schematron jpylyzer schema for KB lossless preservation master (A.K.A. KB_MASTER
     <s:rule context="/file/properties/contiguousCodestreamBox">
         <s:assert test="count(com/comment[text()='KB_MASTER_LOSSLESS_01/01/2015']) =1">Expected codestream comment string missing</s:assert>
       </s:rule>
+
+      <!-- Metadata checks -->
+      <s:rule context="/file/properties/uuidBox/x:xmpmeta">
+
+          <!-- Check that RDF element exists -->
+          <s:assert test="rdf:RDF">missing RDF element</s:assert>
+
+      </s:rule>
+
+      <s:rule context="/file/properties/uuidBox/x:xmpmeta/rdf:RDF">
+
+          <!-- Check that RDF element contains one or more Description elements -->
+          <s:assert test="(count(rdf:Description) &gt; 0)">missing Description element(s)</s:assert>
+
+      </s:rule>
+
 </s:pattern>
 </s:schema>
 

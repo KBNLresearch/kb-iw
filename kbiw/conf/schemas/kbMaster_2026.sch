@@ -1,11 +1,15 @@
 <?xml version="1.0"?>
 <!--
 Schematron jpylyzer schema for KB lossless preservation master (A.K.A. KB_MASTER_LOSSLESS_21/05/2026)
+TODO: formalize to spec with proper name/identifier, e.g. "Middeleeuwse Handschriften", "Beeldstudio"
+on "Metamorfoze"
 -->
 <s:schema xmlns:s="http://purl.oclc.org/dsdl/schematron">
 <s:ns uri="adobe:ns:meta/" prefix="x"/>
 <s:ns uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#" prefix="rdf"/>
 <s:ns uri="http://ns.adobe.com/exif/1.0/" prefix="exif"/>
+<s:ns uri="http://ns.adobe.com/tiff/1.0/" prefix="tiff"/>
+<s:ns uri="http://ns.adobe.com/photoshop/1.0/" prefix="photoshop"/>
 
 <s:pattern>
     <s:title>KB master JP2 2026, generic (no colour/resolution requirements)</s:title>
@@ -120,11 +124,32 @@ Schematron jpylyzer schema for KB lossless preservation master (A.K.A. KB_MASTER
 
           <!-- Check that RDF element contains one or more Description elements -->
           <s:assert test="count(rdf:Description) &gt; 0">missing Description element(s)</s:assert>
-          <!-- Checks on RDF representations of EXIF tags -->
-          <s:assert test="count(rdf:Description/exif:DateTimeOriginal) &gt; 0">missing DateTimeOriginal tag</s:assert>
-          <s:assert test="rdf:Description/exif:DateTimeOriginal  != ''">empty DateTimeOriginal tag</s:assert>
 
-      </s:rule>
+          <!-- Checks on RDF representations of TIFF tags -->
+          <s:assert test="count(rdf:Description/tiff:Software) &gt; 0">missing Software element</s:assert>
+          <s:assert test="rdf:Description/tiff:Software != ''">empty Software element</s:assert>
+          <s:assert test="count(rdf:Description/tiff:Model) &gt; 0">missing Model element</s:assert>
+          <s:assert test="rdf:Description/tiff:Model != ''">empty Model element</s:assert>
+
+          <!-- Checks on RDF representations of EXIF tags -->
+          <s:assert test="count(rdf:Description/exif:DateTimeOriginal) &gt; 0">missing DateTimeOriginal element</s:assert>
+          <s:assert test="rdf:Description/exif:DateTimeOriginal != ''">empty DateTimeOriginal element</s:assert>
+          <s:assert test="count(rdf:Description/exif:ShutterSpeedValue) &gt; 0">missing ShutterSpeedValue element</s:assert>
+          <s:assert test="rdf:Description/exif:ShutterSpeedValue != ''">empty ShutterSpeedValue element</s:assert>
+          <s:assert test="count(rdf:Description/exif:ApertureValue) &gt; 0">missing ApertureValue element</s:assert>
+          <s:assert test="rdf:Description/exif:ApertureValue != ''">empty ApertureValue element</s:assert>
+          <s:assert test="count(rdf:Description/exif:ISOSpeedRatings) &gt; 0">missing ISOSpeedRatings element</s:assert>
+          <s:assert test="count(rdf:Description/exif:ISOSpeedRatings/rdf:Seq) &gt; 0">missing ISOSpeedRatings Sequence element</s:assert>
+          <s:assert test="count(rdf:Description/exif:ISOSpeedRatings/rdf:Seq/rdf:li) &gt; 0">missing ISOSpeedRatings li element</s:assert>
+          <s:assert test="rdf:Description/exif:ISOSpeedRatings/rdf:Seq/rdf:li != ''">empty missing ISOSpeedRatings li element</s:assert>
+
+          <!-- Checks on RDF representations of Photoshop tags -->
+          <s:assert test="count(rdf:Description/photoshop:Headline) &gt; 0">missing Headline element</s:assert>
+          <s:assert test="rdf:Description/photoshop:Headline != ''">empty Headline element</s:assert>
+          <s:assert test="count(rdf:Description/photoshop:Credit) &gt; 0">missing Credit element</s:assert>
+          <s:assert test="rdf:Description/photoshop:Credit != ''">empty Credit element</s:assert>
+
+</s:rule>
 
 
 

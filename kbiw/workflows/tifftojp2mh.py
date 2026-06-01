@@ -389,19 +389,25 @@ class workflow:
                     # Columns 3 - 6 refer to target images (column 2 refers to access images, which are not in manifest)
                     for i in range(2, 6):
                         imageTarget = row[i]
-                        # Directory of this images follows from file name
-                        nameComponents = imageTarget.split(".")[0].split("_")
-                        targetDir = "{}_{}_{}".format(nameComponents[0], nameComponents[2], nameComponents[3])
-                        # Construct full path in corresponding batch manifest value
-                        imageTargetFullPath = os.path.join("Targets", targetDir, imageTarget)
-                        imagesCTable.append(imageTargetFullPath)
+                        # Directory of this image follows from file name
+                        try:
+                            nameComponents = imageTarget.split(".")[0].split("_")
+                        except IndexError:
+                            nameComponents = []
+                        try:
+                            targetDir = "{}_{}_{}".format(nameComponents[0], nameComponents[2], nameComponents[3])
+                            # Construct full path in corresponding batch manifest value
+                            imageTargetFullPath = os.path.join("Targets", targetDir, imageTarget)
+                            imagesCTable.append(imageTargetFullPath)
+                        except IndexError:
+                            pass
 
                 rowIndex += 1
 
             for image in imagesCTable:
                 # Check against batch manifest
                 if not image in imagesManifest:
-                    logging.error("image {} from not found in batch manifest".format(image))
+                    logging.error("image {} not found in batch manifest".format(image))
                     self.noErrors += 1
                 # Add image to combined list of image references from all concordance tables
                 imagesAllCTables.append(image)

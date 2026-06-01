@@ -14,6 +14,7 @@ from .. import shared
 from .. import grok
 from .. import pixelcheck
 from .. import propertiescheck
+from .. import concordance
 
 class workflow:
     """workflow class"""
@@ -112,7 +113,14 @@ class workflow:
                     self.copyDir(thisDirectory)
                 if subdirname == "Concordantie":
                     # Update concordance tables
-                    self.updateCTables(thisDirectory)
+                    myConcordance = concordance.Concordance(thisDirectory,
+                                                            self.dirIn,
+                                                            self.dirOut,
+                                                            self.delimiterIn,
+                                                            self.delimiterOut,
+                                                            self.extensionsIn,
+                                                            self.batchManifest)
+                    myConcordance.updateCTables()
 
             for filename in filenames:
                 if filename.startswith("._"):
@@ -126,7 +134,10 @@ class workflow:
                         self.processImage(thisFile)
 
         # Cross check entries in concordance tables with batch manifest
-        self.concordanceCheck()
+        myConcordance.concordanceCheck()
+
+        # Add any errors from concordance updating / checking to general error count
+        self.noErrors += myConcordance.noErrors
 
         # Number of errors, warnings to log
         logging.info("workflow completed with {} errors and {} warnings".format(self.noErrors, self.noWarnings))

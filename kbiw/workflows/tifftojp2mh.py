@@ -336,7 +336,7 @@ class workflow:
 
 
     def concordanceCheck(self):
-        """Cross-check concordance tables against batch manifest 9including reverse check)"""
+        """Cross-check concordance tables against batch manifest including reverse check)"""
         # TODO: code assumes fixed position + order of columns in concordance tables
         # verify if this is correct. If not, use column names.
 

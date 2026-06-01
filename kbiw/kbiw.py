@@ -185,7 +185,8 @@ def main():
     elif workflow == "tifftojp2-mh":
         wf = tifftojp2mh.workflow()
         # List with names of directories that must be copied unchanged
-        wf.copyDirs = ["Pakbon", "Access_Renamed"]
+        wf.copyDirs = ["Pakbon",
+                       "Access_Renamed"]
         # Activate processing of concordance table
         wf.processCTables = True
         # Name of concordance table dir
@@ -193,7 +194,10 @@ def main():
     elif workflow == "tifftojp2-ie":
         wf = tifftojp2mh.workflow()
         # List with names of directories that must be copied unchanged
-        wf.copyDirs = ["Rapportages_meetresultaten", "Rapportages_onregelmatigheden", "rapporten HeronQAE TC 5"]
+        wf.copyDirs = ["Afgeleiden",
+                       "Rapportages_meetresultaten",
+                       "Rapportages_onregelmatigheden",
+                       "rapporten HeronQAE TC 5"]
         # Activate processing of concordance table
         wf.processCTables = False
 

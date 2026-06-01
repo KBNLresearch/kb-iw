@@ -53,6 +53,10 @@ class workflow:
         self.grokInstance = None
         # ExifTool instance (set in processBatch function)
         self.etInstance = None
+        # Flag that activates processing of concordance tables
+        self.processCTables = False
+        # Name of directory that contains concordance tables
+        self.cTableDirName = None
         # List of directory names that will copied unchanged from input to output batch
         self.copyDirs = []
 
@@ -109,16 +113,17 @@ class workflow:
                 if subdirname in self.copyDirs:
                     # Files in copyDirs directories are copied without modification
                     self.copyDir(thisDirectory)
-                if subdirname == "Concordantie":
-                    # Update concordance tables
-                    myCTables = ctables.CTables(thisDirectory,
-                                                self.dirIn,
-                                                self.dirOut,
-                                                self.delimiterIn,
-                                                self.delimiterOut,
-                                                self.extensionsIn,
-                                                self.batchManifest)
-                    myCTables.update()
+                if self.processCTables:
+                    if subdirname == self.cTableDirName:
+                        # Update concordance tables
+                        myCTables = ctables.CTables(thisDirectory,
+                                                    self.dirIn,
+                                                    self.dirOut,
+                                                    self.delimiterIn,
+                                                    self.delimiterOut,
+                                                    self.extensionsIn,
+                                                    self.batchManifest)
+                        myCTables.update()
 
             for filename in filenames:
                 if filename.startswith("._"):

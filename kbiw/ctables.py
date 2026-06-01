@@ -130,6 +130,7 @@ class CTables:
                     imagesCTable.append(imageMasterFullPath)
 
                     # Columns 3 - 6 refer to target images (column 2 refers to access images, which are not in manifest)
+                    # TODO set columns in class variable
                     for i in range(2, 6):
                         imageTarget = row[i]
                         # Directory of this image follows from file name

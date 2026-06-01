@@ -186,6 +186,10 @@ def main():
         wf = tifftojp2mh.workflow()
         # List with names of directories that must be copied unchanged
         wf.copyDirs = ["Pakbon", "Access_Renamed"]
+        # Activate processing of concordance table
+        wf.processCTables = True
+        # Name of concordance table dir
+        wf.cTableDirName = "Concordantie"
 
     wf.dirIn = dirIn
     wf.dirOut = dirOut

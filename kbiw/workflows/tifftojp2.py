@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 """
-TIFF to JP2 workflow for Middeleeuwse Handschriften
+TIFF to JP2 workflow
 """
 
 import os

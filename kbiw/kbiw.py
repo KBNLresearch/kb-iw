@@ -17,9 +17,7 @@ import argparse
 import json
 import logging
 from . import shared
-from .workflows import tifftojp2generic
-from .workflows import tifftojp2mh
-
+from .workflows import tifftojp2
 
 __version__ = "0.1.0"
 
@@ -180,10 +178,8 @@ def main():
     logging.info("starting workflow \"{}\"".format(workflow))
 
     # Run selected workflow
-    if workflow == "tifftojp2-generic":
-        wf = tifftojp2generic.workflow()
-    elif workflow == "tifftojp2-mh":
-        wf = tifftojp2mh.workflow()
+    if workflow == "tifftojp2-mh":
+        wf = tifftojp2.workflow()
         # List with names of directories that must be copied unchanged
         wf.copyDirs = ["Pakbon",
                        "Access_Renamed"]
@@ -192,7 +188,7 @@ def main():
         # Name of concordance table dir
         wf.cTableDirName = "Concordantie"
     elif workflow == "tifftojp2-ie":
-        wf = tifftojp2mh.workflow()
+        wf = tifftojp2.workflow()
         # List with names of directories that must be copied unchanged
         wf.copyDirs = ["Afgeleiden",
                        "Rapportages_meetresultaten",

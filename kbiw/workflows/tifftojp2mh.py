@@ -53,6 +53,8 @@ class workflow:
         self.grokInstance = None
         # ExifTool instance (set in processBatch function)
         self.etInstance = None
+        # List of directory names that will copied unchanged from input to output batch
+        self.copyDirs = []
 
 
     def processBatch(self):
@@ -104,12 +106,8 @@ class workflow:
         for dirname, dirnames, filenames in os.walk(self.dirIn):
             for subdirname in dirnames:
                 thisDirectory = os.path.join(dirname, subdirname)
-                if subdirname == "Pakbon":
-                    # Files in Pakbon directory are copied without modification
-                    self.copyDir(thisDirectory)
-                if subdirname == "Access_Renamed":
-                    # Files in Access_Renamed directory are copied without modification
-                    # TODO: check if this needs to be included at all!
+                if subdirname in self.copyDirs:
+                    # Files in copyDirs directories are copied without modification
                     self.copyDir(thisDirectory)
                 if subdirname == "Concordantie":
                     # Update concordance tables

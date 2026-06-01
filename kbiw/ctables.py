@@ -8,34 +8,35 @@ import logging
 class CTables:
     """Concordance tables class"""
 
-    def __init__(self, dirConcordance, dirIn, dirOut, delimiterIn,
+    def __init__(self, dirConcordanceIn, dirIn, dirOut, delimiterIn,
                  delimiterOut, extensionsIn, batchManifest):
 
         self.noErrors = 0
-        self.dirConcordance = dirConcordance
+        self.dirConcordanceIn = dirConcordanceIn
         self.dirIn = dirIn
         self.dirOut = dirOut
         self.delimiterIn = delimiterIn
         self.delimiterOut = delimiterOut
         self.extensionsIn = extensionsIn
         self.batchManifest = batchManifest
+        self.dirConcordanceOut = None
 
 
     def update(self):
         """Update concordance tables"""
 
-        dirPathInRel = os.path.relpath(self.dirConcordance, start=self.dirIn)
+        dirPathInRel = os.path.relpath(self.dirConcordanceIn, start=self.dirIn)
         dirPathIn = os.path.abspath(os.path.join(self.dirIn, dirPathInRel))
-        dirPathOut = os.path.abspath(os.path.join(self.dirOut, dirPathInRel))
+        self.dirConcordanceOut = os.path.abspath(os.path.join(self.dirOut, dirPathInRel))
 
         # Create output directory
-        if not os.path.isdir(dirPathOut):
-            os.makedirs(dirPathOut)
+        if not os.path.isdir(self.dirConcordanceOut):
+            os.makedirs(self.dirConcordanceOut)
 
         files = os.listdir(dirPathIn)
         for f in files:
             fileIn = os.path.join(dirPathIn, f)
-            fileOut = os.path.join(dirPathOut, f)
+            fileOut = os.path.join(self.dirConcordanceOut, f)
             fileExtension = os.path.splitext(f)[1]
             fileExtension = fileExtension.upper().strip('.')
 
@@ -102,16 +103,16 @@ class CTables:
             rowIndex += 1
 
         # Stop here if concordance dir doesn't exist'
-        if not os.path.isdir(self.dirConcordance):
-            logging.error("concordance directory {} does not exist".format(self.dirConcordance))
+        if not os.path.isdir(self.dirConcordanceOut):
+            logging.error("concordance directory {} does not exist".format(self.dirConcordanceOut))
             self.noErrors += 1
             return
-        cTables = os.listdir(self.dirConcordance)
+        cTables = os.listdir(self.dirConcordanceOut)
         for cTable in cTables:
             # First part of file name refers to directory in "Signaturen"
             sigDir = cTable.split("_")[0]
             masterDirPath = os.path.join("Signaturen", sigDir, "Master")
-            cTable = os.path.join(self.dirConcordance, cTable)
+            cTable = os.path.join(self.dirConcordanceOut, cTable)
             with open(cTable, 'r', newline='', encoding='utf-8') as fCTab:
                 reader = csv.reader(fCTab, delimiter=self.delimiterOut)
                 cTabData = list(reader)

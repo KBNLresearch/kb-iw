@@ -184,6 +184,8 @@ def main():
         wf = tifftojp2generic.workflow()
     elif workflow == "tifftojp2-mh":
         wf = tifftojp2mh.workflow()
+        # List with names of directories that must be copied unchanged
+        wf.copyDirs = ["Pakbon", "Access_Renamed"]
 
     wf.dirIn = dirIn
     wf.dirOut = dirOut

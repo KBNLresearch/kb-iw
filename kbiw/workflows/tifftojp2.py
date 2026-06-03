@@ -138,10 +138,15 @@ class workflow:
 
         if self.processCTables:
             # Cross check entries in concordance tables with batch manifest
-            myCTables.verify()
+            try:
+                myCTables.verify()
 
-            # Add any errors from concordance updating / checking to general error count
-            self.noErrors += myCTables.noErrors
+                # Add any errors from concordance updating / checking to general error count
+                self.noErrors += myCTables.noErrors
+            except UnboundLocalError:
+                # We end up here if myCtables is undefined
+                logging.error("no concordance tables found in batch")
+                self.noErrors += 1
 
         # Number of errors, warnings to log
         logging.info("workflow completed with {} errors and {} warnings".format(self.noErrors, self.noWarnings))

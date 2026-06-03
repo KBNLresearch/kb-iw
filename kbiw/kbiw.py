@@ -39,7 +39,7 @@ def parseCommandLine():
     parser.add_argument("workflow",
                         action="store",
                         type=str,
-                        help="workflow (tifftojp2-generic, tifftojp2-mh)")
+                        help="workflow (tifftojp2-generic, tifftojp2-mh, tifftojp2-ie)")
     parser.add_argument("--version", "-v",
                         action="version",
                         version=__version__)
@@ -144,7 +144,7 @@ def main():
         shared.errorExit(msg)
 
     # Check if workflow value is valid
-    workflowsAllowed = ["tifftojp2-mh", "tifftojp2-ie", "tifftojp2-seba"]
+    workflowsAllowed = ["tifftojp2-mh", "tifftojp2-ie", "tifftojp2-generic"]
     if workflow not in workflowsAllowed:
         msg = "workflow \"{}\" does not exist. Expected one of these values:".format(workflow)
         for wf in workflowsAllowed:
@@ -179,6 +179,7 @@ def main():
 
     # Run selected workflow
     if workflow == "tifftojp2-mh":
+        # Middeleeuwse Handschriften
         wf = tifftojp2.workflow()
         # List with names of directories that must be copied unchanged
         wf.copyDirs = ["Pakbon",
@@ -188,6 +189,7 @@ def main():
         # Name of concordance table dir
         wf.cTableDirName = "Concordantie"
     elif workflow == "tifftojp2-ie":
+        # Indisch Erfgoed
         wf = tifftojp2.workflow()
         # List with names of directories that must be copied unchanged
         wf.copyDirs = ["Afgeleiden",
@@ -196,7 +198,8 @@ def main():
                        "rapporten HeronQAE TC 5"]
         # No processing of concordance tables
         wf.processCTables = False
-    elif workflow == "tifftojp2-seba":
+    elif workflow == "tifftojp2-generic":
+        # Generic workflow - input batch only contains TIFF images
         wf = tifftojp2.workflow()
         # No processing of concordance tables
         wf.processCTables = False

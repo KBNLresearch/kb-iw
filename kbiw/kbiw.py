@@ -51,7 +51,6 @@ def parseCommandLine():
 
 
 def configure(configPath):
-
     """
     Set up configuration dir if it doesn't exist already, and read configuration
     """
@@ -67,7 +66,7 @@ def configure(configPath):
 
     # Copy contents of package config dir to system config dir
     if not os.path.isdir(configPath):
-        shutil.copytree(configDirPackage, configPath, dirs_exist_ok = True)
+        shutil.copytree(configDirPackage, configPath, dirs_exist_ok=True)
 
     configFile = os.path.join(configPath, "config.json")
     if not os.path.isfile(configFile):
@@ -117,10 +116,10 @@ def main():
     # Path to configuration dir (from https://stackoverflow.com/a/53222876/1209004
     # and https://stackoverflow.com/a/13184486/1209004).
     configPath = os.path.join(
-    os.environ.get('LOCALAPPDATA') or
-    os.environ.get('XDG_CONFIG_HOME') or
-    os.path.join(os.environ['HOME'], '.config'),
-    "kb-iw")
+        os.environ.get('LOCALAPPDATA') or
+        os.environ.get('XDG_CONFIG_HOME') or
+        os.path.join(os.environ['HOME'], '.config'),
+        "kb-iw")
 
     # Get configuration, and set up local configuration if it doesn't exist
     configDict = configure(configPath)
@@ -140,13 +139,15 @@ def main():
         msg = "exifToolExecutable ({}) is missing".format(exifToolExecutable)
         shared.errorExit(msg)
     if not os.access(exifToolExecutable, os.X_OK):
-        msg = "exifToolExecutable ({}) is not executable".format(exifToolExecutable)
+        msg = "exifToolExecutable ({}) is not executable".format(
+            exifToolExecutable)
         shared.errorExit(msg)
 
     # Check if workflow value is valid
     workflowsAllowed = ["tifftojp2-mh", "tifftojp2-ie", "tifftojp2-generic"]
     if workflow not in workflowsAllowed:
-        msg = "workflow \"{}\" does not exist. Expected one of these values:".format(workflow)
+        msg = "workflow \"{}\" does not exist. Expected one of these values:".format(
+            workflow)
         for wf in workflowsAllowed:
             msg += "\n  - {}".format(wf)
         shared.errorExit(msg)
@@ -169,8 +170,8 @@ def main():
     # Set up logging
     logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout),
                                   logging.FileHandler(logFile, 'a', 'utf-8')],
-                                  level=logging.INFO,
-                                  format='%(asctime)s - %(levelname)s - %(message)s')
+                        level=logging.INFO,
+                        format='%(asctime)s - %(levelname)s - %(message)s')
 
     # Start clock for statistics
     start = time.time()

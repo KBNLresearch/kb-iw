@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kb-iw"
+version = "0.1.0"
+authors = [
+  { name="Johan van der Knijff", email="johan.vanderknijff@kb.nl" },
+]
+description = "KB Image Workflow Tool"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "lxml",
+  "pyvips",
+  "jpylyzer",
+  "pyexiftool"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+
+[project.scripts]
+kb-iw = "kbiw.kbiw:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["kbiw/conf"]
+
+[tool.setuptools.package-data]
+mypkg = ["*.json", "*.sch"]
+
+[project.urls]
+Homepage = "https://github.com/KBNLresearch/kb-iw/"
+Issues = "https://github.com/KBNLresearch/kb-iw/issues"

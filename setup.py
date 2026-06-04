@@ -37,7 +37,7 @@ setup(name='kb-iw',
       maintainer='Johan van der Knijff',
       maintainer_email='johan.vanderknijff@kb.nl',
       url='https://github.com/KBNLresearch/kb-iw',
-      package_data={'kbiw: ['*.*',
+      package_data={'kbiw': ['*.*',
                                 'conf/*.*',
                                 'schemas/*.*']},
       entry_points={'console_scripts': [

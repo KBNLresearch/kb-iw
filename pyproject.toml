@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kb-iw"
-version = "0.1.0"
+dynamic = ["version"]
 authors = [
   { name="Johan van der Knijff", email="johan.vanderknijff@kb.nl" },
 ]
@@ -29,6 +29,9 @@ kb-iw = "kbiw.kbiw:main"
 
 [tool.setuptools]
 include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "kbiw.kbiw.__version__"}
 
 [project.urls]
 Homepage = "https://github.com/KBNLresearch/kb-iw/"

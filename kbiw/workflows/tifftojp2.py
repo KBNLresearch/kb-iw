@@ -257,9 +257,13 @@ class workflow:
             # Read metadata from input TIFF and write as XMP block to JP2
             # Adapted from: https://exiftool.org/forum/index.php?topic=2922.0
             try:
-                self.etInstance.execute(
-                    "-tagsfromfile", fileIn, "-all>xmp:all", "-overwrite_original", fileOut)
+                self.etInstance.execute("-tagsfromfile",
+                                        fileIn,
+                                        "-all>xmp:all",
+                                        "-overwrite_original",
+                                        fileOut)
                 successExifTool = True
+                logging.info("copied metadata from TIFF to JP2")
             except Exception:
                 logging.error(
                     "ExifTool failed to copy metadata from TIFF to JP2")

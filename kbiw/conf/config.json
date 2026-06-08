@@ -1,6 +1,7 @@
 {
     "grokDir": "~/grok",
     "exifToolExecutable": "/bin/exiftool",
+    "vipsBinDir": "C:/vips-dev-8.18/bin",
     "compressionProfiles":
     [
         {

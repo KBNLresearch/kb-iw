@@ -84,10 +84,13 @@ def configure(configPath):
 
     # Some light validation of config file contents
     if not "grokDir" in configDict:
-        msg = "\"grokDir\" entry missing configuration file"
+        msg = "\"grokDir\" entry missing in configuration file"
         shared.errorExit(msg)
     if not "exifToolExecutable" in configDict:
-        msg = "\"exifToolExecutable\" entry missing configuration file"
+        msg = "\"exifToolExecutable\" entry missing in configuration file"
+        shared.errorExit(msg)
+    if not "vipsBinDir" in configDict:
+        msg = "\"vipsBinDir\" entry missing configuration file"
         shared.errorExit(msg)
     if not "compressionProfiles" in configDict:
         msg = "\"compressionProfiles\" entry missing in configuration file"
@@ -136,12 +139,19 @@ def main():
     # Check if ExifTool executable exists and is executable
     exifToolExecutable = configDict["exifToolExecutable"]
     if not os.path.isfile(exifToolExecutable):
-        msg = "exifToolExecutable ({}) is missing".format(exifToolExecutable)
+        msg = "exifToolExecutable ({}) not found".format(exifToolExecutable)
         shared.errorExit(msg)
     if not os.access(exifToolExecutable, os.X_OK):
         msg = "exifToolExecutable ({}) is not executable".format(
             exifToolExecutable)
         shared.errorExit(msg)
+
+    # Check if vipsBinDir exists (Windows only)
+    if sys.platform == "win32":
+        vipsBinDir = configDict["vipsBinDir"]
+        if not os.path.isdir (os.path.normpath(vipsBinDir)):
+            msg = "vipsBinDir ({}) not found".format(vipsBinDir)
+            shared.errorExit(msg)
 
     # Check if workflow value is valid
     workflowsAllowed = ["tifftojp2-mh", "tifftojp2-ie", "tifftojp2-generic"]

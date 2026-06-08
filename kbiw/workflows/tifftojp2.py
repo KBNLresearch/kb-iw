@@ -11,8 +11,9 @@ import logging
 import exiftool
 from .. import shared
 from .. import grok
-from .. import pixelcheck
-from .. import convertpaletted
+#from .. import pixelcheck
+#from .. import convertpaletted
+from .. import vips
 from .. import propertiescheck
 from .. import ctables
 
@@ -54,6 +55,8 @@ class workflow:
         self.grokInstance = None
         # ExifTool instance (set in processBatch function)
         self.etInstance = None
+        # Vips instance (set in processBatch function)
+        self.vipsInstance = None
         # Flag that activates processing of concordance tables
         self.processCTables = False
         # Name of directory that contains concordance tables
@@ -84,6 +87,9 @@ class workflow:
         # Start ExifTool instance, using executables as defined in configuration file
         self.etInstance = exiftool.ExifToolHelper(
             executable=self.configDict["exifToolExecutable"])
+
+        # Start Vips instance
+        self.vipsInstance = vips.Vips(self.configDict["vipsBinDir"])
 
         # Add paths to batch manifest, checksum and summary files
         self.batchManifest = os.path.join(self.dirOut, self.batchManifest)
@@ -204,7 +210,7 @@ class workflow:
                     logging.info("found paletted input image")
                     fTmp = os.path.abspath(
                         os.path.join(self.dirOut, "kbiwtmp.tif"))
-                    pcSuccess = convertpaletted.convertPaletted(fileIn, fTmp)
+                    pcSuccess = self.vipsInstance.convertPaletted(fileIn, fTmp)
                     logging.info(
                         "palette conversion successful: {}".format(pSuccess))
             except:
@@ -281,7 +287,7 @@ class workflow:
             try:
                 # Check on pixel values (skip for paletted images, because LibVips can't handle paletted JP2s)
                 if not pallettedFlag:
-                    ssDiff = pixelcheck.sumSqDiff(fileIn, fileOut)
+                    ssDiff = self.vipsInstance.sumSqDiff(fileIn, fileOut)
                     if ssDiff == None:
                         logging.error("pixel check failed with exception")
                         self.noErrors += 1

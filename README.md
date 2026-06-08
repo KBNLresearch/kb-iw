@@ -43,7 +43,7 @@ TODO
 
 1. Download the latest release from the [build-win64-mxe repository](https://github.com/libvips/build-win64-mxe/releases). For a 64 bit Windows system you need the ZIP file that follows the "vips-dev-x64-all-x.y.z.zip" naming pattern (e.g. vips-dev-x64-all-8.18.2.zip).
 
-2. Extract the ZIP file to your hard disk, and make a note of the installation location (e.g. "C:\vips-dev"). You'll need to enter this later in the kbiw configuration file.
+2. Extract the ZIP file to your local file system, and make a note of the installation location (e.g. "C:\vips-dev"). You'll need to enter this later in the kbiw configuration file.
 
 ### ExifTool
 
@@ -61,13 +61,13 @@ TODO
 
 #### Windows
 
-1. Download the 64-bit Windows executable from the [ExifTool website](https://exiftool.org/index.html)
+1. Download the 64-bit Windows executable from the [ExifTool website](https://exiftool.org/index.html).
 
-2. Extract the ZIP file to your hard disk
+2. Extract the ZIP file to your local file system.
 
-3. In the extracted folder, rename the file "exiftool(-k).exe" to "exiftool.exe
+3. In the extracted folder, rename the ExifTool executable ("exiftool(-k).exe") to "exiftool.exe.
 
-4. Make a note of the installation location (e.g. "C:\exiftool"). You'll need to enter this later in the kbiw configuration file.
+4. Make a note of the full path to the executable (e.g. "C:\exiftool\exiftool.exe"). You'll need to enter this later in the kbiw configuration file.
 
 ## Installation of kbiw
 

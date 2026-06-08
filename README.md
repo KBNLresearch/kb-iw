@@ -43,7 +43,7 @@ TODO
 
 1. Download the latest release from the [build-win64-mxe repository](https://github.com/libvips/build-win64-mxe/releases). For a 64 bit Windows system you need the ZIP file that follows the "vips-dev-x64-all-x.y.z.zip" naming pattern (e.g. vips-dev-x64-all-8.18.2.zip).
 
-2. Extract the ZIP file to your hard disk, and make a note of the installation location (e.g. "C:\vips-dev-8.18\"). You'll need to enter this later in the kb-iw configuration file.
+2. Extract the ZIP file to your hard disk, and make a note of the installation location (e.g. "C:\vips-dev"). You'll need to enter this later in the kb-iw configuration file.
 
 ### ExifTool
 
@@ -67,7 +67,7 @@ TODO
 
 3. In the extracted folder, rename the file "exiftool(-k).exe" to "exiftool.exe
 
-4. Make a note of the installation location (e.g. "C:\exiftool-13.59_64\"). You'll need to enter this later in the kb-iw configuration file.
+4. Make a note of the installation location (e.g. "C:\exiftool"). You'll need to enter this later in the kb-iw configuration file.
 
 ## Installation of kb-iw
 
@@ -121,18 +121,29 @@ Depending on your system, kb-iw will now create a configuration folder (see next
 
 ## Configuration
 
-Before you can use kb-iw, you need to edit the configuration file (config.json), which is located in the configuration folder. The configuration folder has the name "kb-iw", and its location depends on your operating system:
+Before you can use kb-iw, you need to edit the configuration file, which is located in the configuration folder. The configuration folder has the name "kb-iw", and its location depends on your operating system:
 
 - For Linux and MacOS, the configuration folder is a subdirectory of the location defined by the environment variable *$XDG_CONFIG_HOME*. If this variable is not set, it will be a subdirectory of the *.config* directory in the user's home folder (e.g. `/home/johan/.config/kb-iw`). Note that the *.config* directory is hidden by default.
 - For Windows, the configuration folder is a subdirectory of of the *AppData\Local* folder (e.g. `C:\Users\johan\AppData\Local\kb-iw`).
 
-The folder contains a subdirectory named *schemas*, which are explained in the "Schemas" section below.
+Open the configuration file ("config.json") in a text editor, and edit the following values:
+
+|Variable|Meaning|Examples|
+|:--|:--||
+|grokDir|Grok installation directory|`C:/Grok` (Windows); `~/grok` (Linux)|
+|exifToolExecutable|ExifTool executable|`C:/exiftool/exiftool.exe` (Windows); `/bin/exiftool` (Linux)|
+|vipsBinDir|Libvips binary dir (only needed on Windows, ignored on Linux/macOS)|`C:/vips-dev/bin` (windows)|
+
+Here's an example for a Windows system:
 
 
-```
-"grokDir": "~/grok",
-"exifToolExecutable": "/bin/exiftool",
-"vipsBinDir": "C:/vips-dev-8.18/bin",
+```json
+{
+  "grokDir": "`C:/Grok",
+  "exifToolExecutable": "C:/exiftool/exiftool.exe",
+  "vipsBinDir": "C:/vips-dev/bin",
+  :
+}
 ```
 
 ## upgrade kb-iw

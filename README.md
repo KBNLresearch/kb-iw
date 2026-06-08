@@ -132,7 +132,7 @@ Open the configuration file ("config.json") in a text editor, and edit the follo
 |:--|:--|:--|
 |grokDir|Grok installation directory|`C:/Grok` (Windows); `~/grok` (Linux)|
 |exifToolExecutable|ExifTool executable|`C:/exiftool/exiftool.exe` (Windows); `/bin/exiftool` (Linux)|
-|vipsBinDir|Libvips binary dir (only needed on Windows, ignored on Linux/macOS)|`C:/vips-dev/bin` (windows)|
+|vipsBinDir|Libvips binary dir (only needed on Windows, ignored on Linux/macOS)|`C:/vips-dev/bin` (Windows)|
 
 Here's an example for a Windows system:
 

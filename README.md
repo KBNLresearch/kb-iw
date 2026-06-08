@@ -11,84 +11,67 @@ The software also generates checksums of all converted images.
 
 ## Dependencies
 
-- Python (tested with version 3.12)
+- Python (tested with versions 3.12.3 and 3.14.5)
 - [Grok JPEG 2000 codec](https://github.com/GrokImageCompression/grok) (tested with version ??)
 - [Libvips](https://www.libvips.org/)
 
 ## Installation of dependencies
 
-### Grok
+### Grok (all platforms)
 
-Download the latest binaries of the Grok image compression software for your platform:
+1. Download the latest binaries of the Grok image compression software for your platform from:
 
-<https://github.com/GrokImageCompression/grok/releases>
+  <https://github.com/GrokImageCompression/grok/releases>
 
-To install, just extract the ZIP file to your local file system.
+2. Extract the ZIP file to your local file system, and make a note of the installation location. You'll need to enter this later in the kb-iw configuration file.
 
 ### Libvips
 
-On Linux (Ubuntu, Linux Mint), install libvips using:
+#### Linux (Ubuntu, Linux Mint)
+
+Install libvips using:
 
 ```
 sudo apt install libvips-dev --no-install-recommends
 ```
 
-For installation on other platforms, see [instructions here](https://www.libvips.org/install.html), and also [here](https://pypi.org/project/pyvips/).
+#### macOS
+
+TODO
+
+#### Windows
+
+1. Download the latest release from the [build-win64-mxe repository](https://github.com/libvips/build-win64-mxe/releases). For a 64 bit Windows system you need the ZIP file that follows the "vips-dev-x64-all-x.y.z.zip" naming pattern (e.g. vips-dev-x64-all-8.18.2.zip).
+
+2. Extract the ZIP file to your hard disk, and make a note of the installation location (e.g. "C:\vips-dev-8.18\"). You'll need to enter this later in the kb-iw configuration file.
 
 ### ExifTool
 
-On Linux (Ubuntu, Linux Mint), install ExifTool using:
+#### Linux (Ubuntu, Linux Mint)
+
+Install ExifTool using:
 
 ```
 sudo apt install libimage-exiftool-perl
 ```
 
+#### macOS
 
-<!--
+TODO
 
-NOTE - pyvips docs (<https://libvips.github.io/pyvips/README.html>) mention 2 installation types:
+#### Windows
 
-- binary (no need to install libvips separately)
-- local (needs separate libvips install)
+1. Download the 64-bit Windows executable from the [ExifTool website](https://exiftool.org/index.html)
 
-Tried binary install:
+2. Extract the ZIP file to your hard disk
 
-```
-pip install "pyvips[binary]"
-```
+3. In the extracted folder, rename the file "exiftool(-k).exe" to "exiftool.exe
 
-This works, but doesn't recognise JP2! After some searching I found this:
+4. Make a note of the installation location (e.g. "C:\exiftool-13.59_64\"). You'll need to enter this later in the kb-iw configuration file.
 
+## Installation of kb-iw
 
-<https://github.com/libvips/pyvips/issues/558#issuecomment-3602902613>
-
-> or security the [binary] version only includes well-tested loaders, so openslide, jpeg2000, matlab, etc etc won't work.
-
-So it seems for JP2 support we need a local install, using:
-
-```
-sudo apt install libvips-dev --no-install-recommends
-pip install pyvips
-
-```
-
-NOTE in my tests, even after uninstalling "pyvips[binary]" and then re-installing pyvips, pyvips ended up not recognising JP2 images (apparently it remained stuck in cffi API mode).
-I was only able to fix this by deleting my Python venv and creating a new one (and then installing pyvips).
--->
-
-## Imported Python packages
-
-- lxml
-- pyvips
-- jpylyzer
-- pyexiftool
-
-TODO: add to setup.py, or better a [pyproject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) file
-
-
-<!--
-
-As of 2025, [uv](https://docs.astral.sh/uv/) appears to be the most straightforward tool for installing Python applications on a variety of platforms (Linux, MacOS, Windows).
+As of 2026, [uv](https://docs.astral.sh/uv/) appears to be the most straightforward tool for installing Python applications on a variety of platforms (Linux, MacOS, Windows).
 
 ### uv installation
 
@@ -120,34 +103,47 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 
 Regardless of the operating system, in some cases the installation script will update your system's configuration to make the location of the uv executable globally accessible. If this happens, just close your current terminal, and open a new one for these changes to take effect. Pay attention to the screen output of the installation script for any details on this.
 
-### imgquad installation
+### kb-iw installation
 
-Use the following command to install imgquad (all platforms):
-
-```
-uv tool install imgquad
-```
-
-Then run imgquad once:
+Use the following command to install kb-iw (all platforms):
 
 ```
-imgquad
+uv tool install kb-iw
 ```
 
-Depending on your system, imgquad will create a folder named *imgquad* in one of the following locations: 
-
-- For Linux and MacOS, it will use the location defined by environment variable *$XDG_CONFIG_HOME*. If this variable is not set, it will use the *.config* directory in the user's home folder (e.g. `/home/johan/.config/imgquad`). Note that the *.config* directory is hidden by default.
-- For Windows, it will use the *AppData\Local* folder (e.g. `C:\Users\johan\AppData\Local\imgquad`).
-
-The folder contains two subdirectories named *profiles* and *schemas*, which are explained in the "Profiles" and "Schemas" sections below.
-
-### upgrade imgquad
-
-Use the following command to upgrade an existing imgquad installation to the latest version:
+Then run kb-iw once:
 
 ```
-uv tool upgrade imgquad
+kb-iw
 ```
+
+Depending on your system, kb-iw will now create a configuration folder (see next section).
+
+## Configuration
+
+Before you can use kb-iw, you need to edit the configuration file (config.json), which is located in the configuration folder. The configuration folder has the name "kb-iw", and its location depends on your operating system:
+
+- For Linux and MacOS, the configuration folder is a subdirectory of the location defined by the environment variable *$XDG_CONFIG_HOME*. If this variable is not set, it will be a subdirectory of the *.config* directory in the user's home folder (e.g. `/home/johan/.config/kb-iw`). Note that the *.config* directory is hidden by default.
+- For Windows, the configuration folder is a subdirectory of of the *AppData\Local* folder (e.g. `C:\Users\johan\AppData\Local\kb-iw`).
+
+The folder contains a subdirectory named *schemas*, which are explained in the "Schemas" section below.
+
+
+```
+"grokDir": "~/grok",
+"exifToolExecutable": "/bin/exiftool",
+"vipsBinDir": "C:/vips-dev-8.18/bin",
+```
+
+## upgrade kb-iw
+
+Use the following command to upgrade an existing kb-iw installation to the latest version:
+
+```
+uv tool upgrade kb-iw
+```
+
+<!---
 
 ## Command-line syntax
 
@@ -164,6 +160,8 @@ Imgquad has three sub-commands:
 |process|Process a batch.|
 |list|List available profiles and schemas.|
 |copyps|Copy default profiles and schemas to user directory.|
+
+
 
 ### process command
 
@@ -216,42 +214,7 @@ Available schemas (directory /home/johan/.config/imgquad/schemas):
   - mh-2025-tiff-600.sch
 ```
 
-### copyps command
 
-If you run imgquad with the *copyps* command, it will copy the default profiles and schemas that are included in the installation over to your user directory.
-
-**Warning:** any changes you made to the default profiles or schemas will be lost after this operation, so proceed with caution! If you want to keep any of these files, just make a copy and save them under a different name before running the *copyps* command.
-
-## Profiles
-
-A profile is an XML file that defines how a digitisation batch is evaluated. Here's an example:
-
-```xml
-
-```
-
-The profile is made up of the following components:
-
-1. One or more *extension* elements, which tell imgquad what file extensions to look for. Imgquad handles file extensions in a case-insensitive way, so *tif* covers both "rubbish.tif" and "rubbish.TIF".
-2. Zero or more *ns* elements, each of which maps a namespace prefix to its corresponding uri.
-3. One or more *summaryProperty* elements, which define the properties that are written to the summary file. Each summary property is expressed as an xpath expression. 
-4. One or more *schema* elements, that each link a file or directory naming pattern to a Schematron file (explained in the next section).
-
-In the example, there's only one  *schema* element, which is used for all processed images. Optionally, each *schema* element may contain *type*, *match* and *pattern* attributes, which define how a schema is linked to file or directory names inside the batch:
-
-- If **type** is "fileName", the matching is based on the naming of an image. In case of "parentDirName" the matching uses the naming of the direct parent directory of an image.
-- The **match** attribute defines whether the matching pattern with the file or directory name is exact ("is") or partial ("startswith", "endswith", "contains".)
-- The **pattern** attribute defines a text string that is used for the match.
-
-See the [pdfquad documentation](https://github.com/KBNLresearch/pdfquad#profiles) for an example of how these attributes are used.
-
-### Available profiles
-
-Currently the following profiles are included:
-
-|Profile|Description|
-|:--|:--|
-|mh-2025-tiff.xml|Profile for digitised medieval manuscripts.|
 
 ## Schemas
 
@@ -336,7 +299,7 @@ In addition, the summary file contains additional columns with the properties th
 
 ## Licensing
 
-Jp2batchconverter is released under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0). Parts of the code were inspired by the Bodeleian's [Image Processing](https://github.com/bodleian/image-processing) library.
+KB-iw is released under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0). Parts of the code were inspired by the Bodeleian's [Image Processing](https://github.com/bodleian/image-processing) library.
 
 
 

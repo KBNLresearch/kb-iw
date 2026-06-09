@@ -34,5 +34,5 @@ include-package-data = true
 version = {attr = "kbiw.kbiw.__version__"}
 
 [project.urls]
-Homepage = "https://github.com/KBNLresearch/kbiw/"
+Homepage = "https://github.com/KBNLresearch/kbiw"
 Issues = "https://github.com/KBNLresearch/kbiw/issues"

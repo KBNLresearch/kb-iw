@@ -71,7 +71,7 @@ TODO
 
 ## Installation of kbiw
 
-As of 2026, [uv](https://docs.astral.sh/uv/) appears to be the most straightforward tool for installing Python applications on a variety of platforms (Linux, MacOS, Windows). However, the default KB Windows security policy blocks any applications that are installed in this way. For these machines, we have to install kbiw in a virtual environment, after which kbiw can be run as a Python module.
+As of 2026, [uv](https://docs.astral.sh/uv/) appears to be the most straightforward tool for installing Python applications on a variety of platforms (Linux, MacOS, Windows). However, the default KB Windows security policy blocks any applications that are installed in this way. For these machines, we have to install kbiw in a virtual environment, after which kbiw can be run as a Python module. For completeness, both installation methods (uv installation and Virtual environment installation) are decribed below.
 
 ### uv installation
 

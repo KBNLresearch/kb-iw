@@ -288,7 +288,6 @@ Schemas contain the Schematron rules on which the Jpylyzer check is based. Some 
 
 This is a schema for digitised medieval manuscripts.
 
-TODO add table with checks.
 
 <!--
 

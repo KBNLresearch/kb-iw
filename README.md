@@ -231,7 +231,7 @@ See batch manifest and log file for details on errors and warnings
 
 This is a semicolon-delimited file with information about each converted image. It has the following columns:
 
-|Column|Meaning||
+|Column|Meaning|
 |:--|:--|
 |image|relative path + name of the image|
 |successGrok|True/False flag that indicates if Grok's TIFF to JP2 conversion was successful|

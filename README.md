@@ -178,13 +178,7 @@ Here's an example for a Windows system:
 }
 ```
 
-## upgrade kbiw
-
-Use the following command to upgrade an existing kbiw installation to the latest version:
-
-```
-uv tool upgrade kbiw
-```
+The remaining part of configuration file contains a set of compression profiles, which define the JPEG 20000 compression options used by Grok. Make sure to *not* change these (unless you know what you're doing), as it may result in unexpected behaviour.
 
 ## Using kbiw
 
@@ -212,47 +206,85 @@ kbiw ./batch-tiff ./batch-jp2 tifftojp2-generic
 
 ### tifftojp2-generic
 
-TODO add short description.
+This converts all TIFF images (identified by a ".tif" or ".tiff" file extension) in the input batch directory to corresponding JP2 images in the output batch directory. The directory structure of the input batch is replicated in the output batch. Any files in the input batch that are not TIFF images are ignored. The same is true for directories that do not contain any TIFF images. As a result, these files and directories are not included in the output batch. For each input TIFF, the workflow involves the following steps:
+
+1. Convert the TIFF to JP2 with the [Grok](https://github.com/GrokImageCompression/grok) JPEG 2000 encoder, using the compression profile "KB_MASTER_LOSSLESS_10/06/2026".
+1. Read the metadata from the input TIFF, and write these as an XMP block to the JP2 with [ExifTool](https://exiftool.org/).
+1. Analyze the JP2 with [Jpylyzer](https://jpylyzer.openpreservation.org/), and evaluate its output against the [Schematron schema](./kbiw/conf/schemas/kbMaster_2026.sch) that defines the required technical properties and metadata.
+1. Check if the pixel values of the JP2 are identical to those of the input TIFF, using the [libvips](https://www.libvips.org/) image processing library.
+1. Calculate the JP2's SHA-512 checksum, and add this value to the checksum file of the batch.
+
+In addition to this, it writes the following files to the root of the output batch:
+
+### summary.txt
+
+This is a text file with a (very) brief summary of the resuls of the workflow. Here's an example:
+
+```
+Grok version: 20.3.3
+Errors: 0
+Warnings: 0
+See batch manifest and log file for details on errors and warnings
+```
+
+#### manifest.csv
+
+This is a semicolon-delimited file with information about each converted image. It has the following columns:
+
+|Column|Meaning||
+|:--|:--|
+|image|relative path + name of the image|
+|successGrok|True/False flag that indicates if Grok's TIFF to JP2 conversion was successful|
+|successExifTool|True/False flag that indicates if ExifTool's metadata copying was successful|
+|palettedImage|True/False flag that is True if the output JP2 has a color palette, and False otherwise (some JP2 decoders cannot decode paletted images, so in general you may want to avoid them)|
+|successPixelCheck|True/False flag that indicates if the check on the pixel values was successful|
+|successJpylyzerCheck|True/False flag that indicates if the check on the image properties (Jpylyzer + Schematron) was successful|
+|failedJpylyzerChecks|List of failed Jpylyzer + Schematron checks (separated by "|" characters)|
+
+#### kbiw.log
+
+Log file. If the summary file indicates any errors or warnings, the log file provides detailed information on them (look for the ERROR and WARNING messages).
+
+#### checksums.sha512
+
+File with SHA-512 checksums (format is compatible with the [sha512sum](https://man7.org/linux/man-pages/man1/sha512sum.1.html) tool).
+
+### tifftojp2-generic-convertpaletted
+
+This workflow is identical to the *tifftojp2-generic* workflow, but with the following addition:
+
+- Convert any palette-color TIFFs to a regular (RGB or grayscale) JP2. For this, the workflow uses ExifTool to check the value of the "PhotometricInterpretation" TIFF tag. If this is "3" ("RGB Palette"), the workflow uses libvips to convert the input TIFF to a (temporary) unpaletted TIFF file. This temporary TIFF is then converted to JP2. Converting to unpaletted JP2 can be useful, because paletted JP2s are quite uncommon, and not all decoders support them. 
 
 ### tifftojp2-mh
 
-TODO add short description.
+Workflow for batches from the "Middeleeuwse Handschriften" (Medieval Manuscripts) project. This workflow is largely identical to the *tifftojp2-generic* workflow, but with the following additions:
+
+- Read concordance tables from the input batch, and write corresponding concordance tables to the output batch, and update all references to TIFF images to JP2. Any references to non-TIFF images (e.g. access JPEGs) are copied verbatim.
+- Perform a two-way check on the output concordance tables: first check that all JP2 images defined in the concordance tables exist in the output batch, and then also check that all JP2 images in the output batch are defined in the concordance tables.
+- Create verbatim copies of the directories "Pakbon" and "Access_Rename".
+
+Note that at present, the entries in the "Middeleeuwse Handschriften" concordance tables don't include direct file path references. For the master images, the path follows from the name of the concordance table file, and for the targets it follows from the name of the target image.
 
 ### tifftojp2-ie
 
-TODO add short description.
+Workflow for batches from the "Indisch Erfgoed" program. This workflow is largely identical to the *tifftojp2-generic* workflow, but with the following addition: 
 
-## Configuration file
+- Create verbatim copies of the directories "Afgeleiden", "Rapportages_meetresultaten", "Rapportages_onregelmatigheden" and "rapporten HeronQAE TC 5".
 
-TODO
 
 ## Schemas
 
-TODO
+Schemas contain the Schematron rules on which the Jpylyzer check is based. Some background information about this type of rule-based validation can be found in [this blog post](https://www.bitsgalore.org/2012/09/04/automated-assessment-jp2-against-technical-profile). Currently the following schemas are included:
 
-## Output files
+### kbMaster_2026.sch
 
-### Manifest file
+This is a schema for digitised medieval manuscripts.
 
-manifest.csv
-
-### Checksum file
-
-checksums.sha512
-
-### Log file
-
-kbiw.log
+TODO add table with checks.
 
 <!--
 
-## Schemas
-
-Schemas contain the Schematron rules on which the quality assessment is based. Some background information about this type of rule-based validation can be found in [this blog post](https://www.bitsgalore.org/2012/09/04/automated-assessment-jp2-against-technical-profile). Currently the following schemas are included:
-
-### mh-2025-tiff-600.sch
-
-This is a schema for digitised medieval manuscripts. It includes the following checks:
+It includes the following checks:
 
 |Check|Value|
 |:---|:---|
@@ -293,7 +325,6 @@ This is a schema for digitised medieval manuscripts. It includes the following c
 |photoshop:Credit|defined in XMP metadata as either element `rdf:RDF/rdf:Description/photoshop:Credit`, or attribute `rdf:RDF/rdf:Description/@photoshop:Credit`|
 |photoshop:Credit value|not empty|
 
-The schema also includes an additional check on any exceptions that occurred while parsing the image, as this may indicate a corrupted file.
 
 ### mh-2025-tiff-300.sch
 
@@ -303,27 +334,6 @@ This schema is identical to the mh-2025-tiff-600.sch schema, except for the chec
 |:---|:---|
 |XResolution value|300 (+/- 1) |
 |YResolution value|300 (+/- 1) |
-
-## Output
-
-Imgquad reports the following output:
-
-### Comprehensive output file (XML)
-
-For each batch, Imgquad generates one comprehensive output file in XML format. This file contains, for each image, all extracted properties, as well as the Schematron report and the assessment status.
-
-### Summary file (CSV)
-
-This is a comma-delimited text file that summarises the analysis. At the minimum, Imgquad reports the following columns for each image:
-
-|Column|Description|
-|:-----|:--|
-|file|Full path to the image file.|
-|validationSuccess|Flag with value *True* if Schematron validation was succesful, and *False* if not. A value *False* indicates that the file could not be validated (e.g. because no matching schema was found, or the validation resulted in an unexpected exception)|
-|validationOutcome|The outcome of the Schematron validation/assessment. Value is *Pass* if file passed all tests, and *Fail* otherwise. Note that it is automatically set to *Fail* if the Schematron validation was unsuccessful (i.e. "validationSuccess" is *False*)|
-|validationErrors|List of validation errors (separated by "\|" characters).|
-
-In addition, the summary file contains additional columns with the properties that are defined by the *summaryProperty* elements in the profile.
 
 -->
 

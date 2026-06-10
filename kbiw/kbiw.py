@@ -193,7 +193,7 @@ def main():
         # Middeleeuwse Handschriften
         wf = tifftojp2.workflow()
         # Compression profile
-        wf.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
+        wf.compressionProfile = "KB_MASTER_LOSSLESS_10/06/2026"
         # Schematron schema used for properties check
         wf.schema = "kbMaster_2026.sch"
         # List with names of directories that must be copied unchanged
@@ -207,7 +207,7 @@ def main():
         # Indisch Erfgoed
         wf = tifftojp2.workflow()
         # Compression profile
-        wf.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
+        wf.compressionProfile = "KB_MASTER_LOSSLESS_10/06/2026"
         # Schematron schema used for properties check
         wf.schema = "kbMaster_2026.sch"
         # List with names of directories that must be copied unchanged
@@ -221,13 +221,23 @@ def main():
         # Generic workflow - input batch only contains TIFF images
         wf = tifftojp2.workflow()
         # Compression profile
-        wf.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
+        wf.compressionProfile = "KB_MASTER_LOSSLESS_10/06/2026"
         # Schematron schema used for properties check
         wf.schema = "kbMaster_2026.sch"
         # No processing of concordance tables
         wf.processCTables = False
         # TEST Convert paletted images to regular colorspace
         wf.convertPalettedImages = True
+
+    # Some checks
+    profileExists = False
+    for profile in configDict["compressionProfiles"]:
+        if profile["name"] == wf.compressionProfile:
+            profileExists = True
+    if not profileExists:
+        msg = "compression profile {} is undefined".format(wf.compressionProfile)
+        shared.errorExit(msg)
+
 
     wf.dirIn = dirIn
     wf.dirOut = dirOut

@@ -37,7 +37,11 @@ sudo apt install libvips-dev --no-install-recommends
 
 #### macOS
 
-TODO
+Install libvips using:
+
+```
+brew install vips
+```
 
 #### Windows
 
@@ -57,7 +61,11 @@ sudo apt install libimage-exiftool-perl
 
 #### macOS
 
-TODO
+Install ExifTool using:
+
+```
+brew install exiftool
+```
 
 #### Windows
 

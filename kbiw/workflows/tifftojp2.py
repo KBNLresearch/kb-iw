@@ -271,7 +271,6 @@ class workflow:
                 self.noErrors += 1
 
             # Analyze JP2 with Jpylyzer and evaluate output against Schematron policy
-            # TODO this now fails on xmlBox test because Grok doesn't support this (perhaps relax specs?)
             status, schTestsFailed, jpTestsFailed, pallettedFlag = propertiescheck.propertiesCheck(
                 fileOut, self.schema)
 

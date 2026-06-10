@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-Schematron jpylyzer schema for KB lossless preservation master (A.K.A. KB_MASTER_LOSSLESS_21/05/2026)
+Schematron jpylyzer schema for KB lossless preservation master (A.K.A. KB_MASTER_LOSSLESS_10/06/2026)
 TODO: formalize to spec with proper name/identifier, e.g. "Middeleeuwse Handschriften", "Beeldstudio"
 on "Metamorfoze"
 -->
@@ -109,7 +109,7 @@ on "Metamorfoze"
     <!-- Check specs reference as codestream comment -->
     <!-- Rule looks for one exact match, additional codestream comments are permitted -->
     <s:rule context="/file/properties/contiguousCodestreamBox">
-        <s:assert test="count(com/comment[text()='KB_MASTER_LOSSLESS_01/01/2015']) =1">Expected codestream comment string missing</s:assert>
+        <s:assert test="count(com/comment[text()='KB_MASTER_LOSSLESS_10/06/2026']) =1">Expected codestream comment string missing</s:assert>
       </s:rule>
 
       <!-- Metadata checks -->

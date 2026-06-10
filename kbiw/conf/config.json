@@ -5,7 +5,7 @@
     "compressionProfiles":
     [
         {
-         "name":"KB_MASTER_LOSSLESS_01/01/2015",
+         "name":"KB_MASTER_LOSSLESS_10/06/2026",
          "params": ["-n","6",
                     "-p","RPCL",
                     "-t","1024,1024",
@@ -15,11 +15,11 @@
                     "-S",
                     "-E",
                     "-M","32",
-                    "-C","KB_MASTER_LOSSLESS_01/01/2015"]
+                    "-C","KB_MASTER_LOSSLESS_10/06/2026"]
 
         },
         {
-         "name":"KB_ACCESS_LOSSY_01/01/2015",
+         "name":"KB_ACCESS_LOSSY_10/06/2026",
          "params": ["-I",
                     "-n","6",
                     "-p","RPCL",
@@ -30,7 +30,7 @@
                     "-S",
                     "-E",
                     "-M","32",
-                    "-C","KB_MASTER_LOSSLESS_01/01/2015"]
+                    "-C","KB_ACCESS_LOSSY_10/06/2026"]
         }
     ]
 }

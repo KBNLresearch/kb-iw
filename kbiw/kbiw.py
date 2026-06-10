@@ -229,15 +229,18 @@ def main():
         # TEST Convert paletted images to regular colorspace
         wf.convertPalettedImages = True
 
-    # Some checks
+    # Check if comprssion profile exists
     profileExists = False
     for profile in configDict["compressionProfiles"]:
         if profile["name"] == wf.compressionProfile:
             profileExists = True
     if not profileExists:
-        msg = "compression profile {} is undefined".format(wf.compressionProfile)
+        msg = "compression profile ({}) is undefined".format(wf.compressionProfile)
         shared.errorExit(msg)
-
+    # Check if schema exists
+    if not os.path.isfile(os.path.join(configPath, "schemas", wf.schema)):
+        msg = "schema ({}) does not exist".format(wf.schema)
+        shared.errorExit(msg)
 
     wf.dirIn = dirIn
     wf.dirOut = dirOut

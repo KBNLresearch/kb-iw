@@ -26,9 +26,9 @@ class workflow:
         # List of input extensions that will be converted to JP2
         self.extensionsIn = ["tif", "tiff"]
         # Compression profile (name only, path is added later)
-        self.compressionProfile = "KB_MASTER_LOSSLESS_01/01/2015"
+        self.compressionProfile = None
         # Schematron schema used for properties check
-        self.schema = "kbMaster_2026.sch"
+        self.schema = None
         # Delimiter used in input concordance tables
         self.delimiterIn = ";"
         # Delimiter used in summary file and output concordance tables

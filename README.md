@@ -333,7 +333,7 @@ This schema is identical to the mh-2025-tiff-600.sch schema, except for the chec
 
 ## Licensing
 
-KBiw is released under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0). Parts of the code were inspired by the Bodeleian's [Image Processing](https://github.com/bodleian/image-processing) library.
+KBiw is released under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0). Parts of the code were inspired by the Bodleian's [Image Processing](https://github.com/bodleian/image-processing) library.
 
 
 

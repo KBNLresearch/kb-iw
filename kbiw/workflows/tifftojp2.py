@@ -11,8 +11,6 @@ import logging
 import exiftool
 from .. import shared
 from .. import grok
-#from .. import pixelcheck
-#from .. import convertpaletted
 from .. import vips
 from .. import propertiescheck
 from .. import ctables

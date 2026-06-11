@@ -14,6 +14,7 @@ The software also generates checksums of all converted images.
 - Python (tested with versions 3.12.3 and 3.14.5)
 - [Grok JPEG 2000 codec](https://github.com/GrokImageCompression/grok) (tested with version ??)
 - [Libvips](https://www.libvips.org/)
+- [ExifTool](https://exiftool.org/)
 
 ## Installation of dependencies
 

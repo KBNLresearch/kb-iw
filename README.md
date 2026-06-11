@@ -79,9 +79,9 @@ brew install exiftool
 
 ## Installation of kbiw
 
-As of 2026, [uv](https://docs.astral.sh/uv/) appears to be the most straightforward tool for installing Python applications on a variety of platforms (Linux, MacOS, Windows). However, the default KB Windows security policy blocks any applications that are installed in this way. For these machines, we have to install kbiw in a virtual environment, after which kbiw can be run as a Python module. For completeness, both installation methods (uv installation and Virtual environment installation) are decribed below.
+As of 2026, [uv](https://docs.astral.sh/uv/) appears to be the most straightforward tool for installing Python applications on a variety of platforms (Linux, MacOS, Windows). However, the default KB Windows security policy blocks any applications that are installed in this way. For these machines, we have to install kbiw with pip, after which kbiw can be run as a Python module. For completeness, both installation methods (uv installation and pip installation) are decribed below.
 
-### uv installation
+### uv installation (all platforms)
 
 First, check if uv is installed on your system by typing the uv command in a terminal:
 
@@ -119,25 +119,11 @@ Use the following command to install kbiw (all platforms):
 uv tool install kbiw
 ```
 
-## Virtual environment installation
+## pip installation (Windows with software restriction policy)
 
-As an alternative to the uv installation, you can also install kbiw in a virtual environment. This is especially useful in case of Windows policies that block running installed Python applications.
+As an alternative to the uv installation, you can also install kbiw with pip. This is especially useful in case of Windows policies that block running installed Python applications.
 
-### Create a virtual environment
-
-First create a virtual environment. To keep things organised, it's a good idea to create it in a dedicated "virtual environments" folder (e.g. "C:\venvs"). Then we can create a virtual environment "kbiw" using the command:
-
-```
-python -m venv C:\venvs\kbiw
-```
-
-Next activate the virtual environment using:
-
-```
-C:\venvs\kbiw\Scripts\activate
-```
-
-Now install kbiw in this virtual environment with:
+Install kbiw with:
 
 ```
 python -m pip install kbiw
@@ -151,7 +137,7 @@ After the installation, run kbiw once:
 kbiw
 ```
 
-For a virtual environment installation (KB Windows only), use this command instead: 
+For a Windows machine with a software restriction policy that blocks running Python applications, use this command instead: 
 
 ```
 python -m kbiw

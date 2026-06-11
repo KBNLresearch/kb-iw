@@ -19,7 +19,7 @@ import logging
 from . import shared
 from .workflows import tifftojp2
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 # Create parser
 parser = argparse.ArgumentParser(description="KB Image Workflow tool")
